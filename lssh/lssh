@@ -9,18 +9,15 @@ function msg(){
     then
         if [ "$2" == "error" ]
         then
-            echo -e "$(date '+%Y-%m-%d %H:%M:%S') \e[31m${SCRIPT_NAME} ERROR\e[0m: $3" 1>&2
+            echo -e "[${SCRIPT_NAME}] $(date '+%Y-%m-%d %H:%M:%S') \e[31mERROR\e[0m: $3" 1>&2
         else
-        then
-            echo "$(date '+%Y-%m-%d %H:%M:%S') ${SCRIPT_NAME}: $*"
+            echo "[${SCRIPT_NAME}] $(date '+%Y-%m-%d %H:%M:%S')  INFO: $2"
         fi
     else
-    then
         if [ "$1" == "error" ]
         then
-            echo -e "\e[31mERROR\e $*"
+            echo -e "\e[31mERROR:\e[0m $2"
         else
-        then
             echo "$*"
         fi
     fi
