@@ -22,28 +22,22 @@ function msg(){
     fi
 }
 
-msg "123"
-msg log "123"
-msg error "123"
-msg log error "123"
-
-
-# if [ "$1" == "" ] || [ "$1" == "-h" ]
-# then
-#     msg "   Usage: $0 [options] [command]"
-#     msg " "
-#     msg "   Commands: "
-#     msg "          lssh             Install global command lssh"
-#     msg " "
-#     msg "   Options: "
-#     msg "          <default>,-h     Output usage information"
-#     msg "          -v               Verbose mode"
-# elif [ "$1" == "lssh" ]
-# then
-#     msg "lssh"
-# elif [ "$1" == "-v" ]
-# then
-#     msg "${SCRIPT_NAME} version: v${SCRIPT_VERSION}"
-# else
-#     msg "$1 is not supported by ${SCRIPT_NAME}"
-# fi
+if [ "$1" == "" ] || [ "$1" == "-h" ]
+then
+    msg "   Usage: $0 [options] [command]"
+    msg " "
+    msg "   Commands: "
+    msg "          lssh             Install global command lssh"
+    msg " "
+    msg "   Options: "
+    msg "          <default>,-h     Output usage information"
+    msg "          -v               Verbose mode"
+elif [ "$1" == "lssh" ]
+then
+    msg "lssh"
+elif [ "$1" == "-v" ]
+then
+    msg "${SCRIPT_NAME} version: v${SCRIPT_VERSION}"
+else
+    msg "$1 is not supported by ${SCRIPT_NAME}"
+fi
