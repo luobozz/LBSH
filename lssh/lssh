@@ -1,4 +1,6 @@
 #!/bin/bash
+# ssh增强 用于保存会话快速登录
+# 依赖列表
 SCRIPT_VERSION="1.0.0"
 SCRIPT_NAME="lb-ssh"
 
@@ -26,16 +28,20 @@ then
     msg "   Usage: $0 [options] [command]"
     msg "          $0 use name or ip or id"
     msg " "
+    msg "   Repositories: [sshpass]"
+    msg " "
     msg "   Commands: "
     msg "          <default>,r      Connecting a ssh session"
     msg "          ls               Output all configured ssh sessions"
     msg " "
     msg "   Options: "
-    msg "          -h     Output usage information"
-    msg "          -v,-verison      Verbose mode"
+    msg "          -h               Output usage information"
+    msg "          -v               Verbose mode"
 elif [ "$1" == "-v" ]
 then
     msg "${SCRIPT_NAME} version: v${SCRIPT_VERSION}"
+else
+    msg "$1 is not supported by ${SCRIPT_NAME}"
 fi
 
 # sshpass -p '123456' ssh shtf@192.168.1.46
