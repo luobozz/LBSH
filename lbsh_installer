@@ -27,12 +27,13 @@ then
     msg "   Usage: $0 [options] [command]"
     msg " "
     msg "   Commands: "
-    msg "          lssh             Install global command lssh"
+    msg "          i,install        install"
+    msg "          u,unstall        unstall"
     msg " "
     msg "   Options: "
     msg "          <default>,-h     Output usage information"
     msg "          -v               Verbose mode"
-elif [ "$1" == "lssh" ]
+elif [ "$1" == "i" ]
 then
     msg "lssh"
 elif [ "$1" == "-v" ]
