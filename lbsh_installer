@@ -51,6 +51,7 @@ then
     # elif [ $(isContains "${INSTALL_SUPPORT_ARR[*]}" $2) ==  "0" ]
     #     msg "$2 is not supported for installation."
     elif [ "$2" == "lssh" ]
+    then
         msg "lssh"
     else
         msg "$2 is not supported for installation."
