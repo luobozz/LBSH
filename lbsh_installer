@@ -3,7 +3,7 @@
 SCRIPT_VERSION="1.0.0"
 SCRIPT_NAME="lbsh_installer"
 
-INSTALL_SUPPORT=("lssh")
+INSTALL_SUPPORT_ARR=("lssh")
 LSSH_INSTALL_HOME="./lssh"
 
 
@@ -47,13 +47,17 @@ elif [ "$1" == "i" ]
 then
     if [ "$2" == "" ]
     then
-        msg "Unable to install empty"
+        msg "Unable to install empty."
+    # elif [ $(isContains "${INSTALL_SUPPORT_ARR[*]}" $2) ==  "0" ]
+    #     msg "$2 is not supported for installation."
+    elif [ "$2" == "lssh" ]
+        msg "lssh"
     else
-        msg "$2 is not supported"
+        msg "$2 is not supported for installation."
     fi
 elif [ "$1" == "-v" ]
 then
-    msg "${SCRIPT_NAME} version: v${SCRIPT_VERSION}"
+    msg "${SCRIPT_NAME} version: v${SCRIPT_VERSION}."
 else
-    msg "$1 is not supported by ${SCRIPT_NAME}"
+    msg "$1 is not supported by ${SCRIPT_NAME}."
 fi

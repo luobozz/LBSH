@@ -46,9 +46,9 @@ then
     msg "          -v               Verbose mode"
 elif [ "$1" == "-v" ]
 then
-    msg "${SCRIPT_NAME} version: v${SCRIPT_VERSION}"
+    msg "${SCRIPT_NAME} version: v${SCRIPT_VERSION}."
 else
-    msg "$1 is not supported by ${SCRIPT_NAME}"
+    msg "$1 is not supported by ${SCRIPT_NAME}."
 fi
 
 # sshpass -p '123456' ssh shtf@192.168.1.46
