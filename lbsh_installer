@@ -3,6 +3,10 @@
 SCRIPT_VERSION="1.0.0"
 SCRIPT_NAME="lbsh_installer"
 
+INSTALL_SUPPORT=("lssh")
+LSSH_INSTALL_HOME="./lssh"
+
+
 function msg(){
     if [ "$1" == "log" ]
     then
@@ -35,7 +39,7 @@ then
     msg "          -v               Verbose mode"
 elif [ "$1" == "i" ]
 then
-    msg "lssh"
+    if [ "$2" == "" ]
 elif [ "$1" == "-v" ]
 then
     msg "${SCRIPT_NAME} version: v${SCRIPT_VERSION}"

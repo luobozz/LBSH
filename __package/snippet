@@ -1,0 +1,24 @@
+function msg(){
+    if [ "$1" == "log" ]
+    then
+        if [ "$2" == "error" ]
+        then
+            echo -e "[${SCRIPT_NAME}] $(date '+%Y-%m-%d %H:%M:%S') \e[31mERROR\e[0m: $3" 1>&2
+        else
+            echo "[${SCRIPT_NAME}] $(date '+%Y-%m-%d %H:%M:%S')  INFO: $2"
+        fi
+    else
+        if [ "$1" == "error" ]
+        then
+            echo -e "\e[31mERROR:\e[0m $2"
+        else
+            echo "$*"
+        fi
+    fi
+}
+
+
+function isContains(){
+    narr=($1)
+    [[ ${narr[@]/$2/} != ${narr[@]} ]];echo $?
+}
