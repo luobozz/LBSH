@@ -26,6 +26,12 @@ function msg(){
     fi
 }
 
+function isContains(){
+    narr=($1)
+    [[ ${narr[@]/$2/} == ${narr[@]} ]]
+    echo $?
+}
+
 if [ "$1" == "" ] || [ "$1" == "-h" ]
 then
     msg "   Usage: $0 [options] [command]"
@@ -40,6 +46,11 @@ then
 elif [ "$1" == "i" ]
 then
     if [ "$2" == "" ]
+    then
+        msg "Unable to install empty"
+    else
+        msg "$2 is not supported"
+    fi
 elif [ "$1" == "-v" ]
 then
     msg "${SCRIPT_NAME} version: v${SCRIPT_VERSION}"

@@ -1,3 +1,4 @@
+#/bin/bash
 function msg(){
     if [ "$1" == "log" ]
     then
@@ -17,8 +18,14 @@ function msg(){
     fi
 }
 
-
+# 判断数组内是否存在 0/F 1/T
+# arr=(1 2 3 4)
+# target1=4
+# echo `isContains "${arr[*]}" $target1` 
+# a=$(isContains "${arr[*]}" $target1)
+# echo ${a}
 function isContains(){
     narr=($1)
-    [[ ${narr[@]/$2/} != ${narr[@]} ]];echo $?
+    [[ ${narr[@]/$2/} == ${narr[@]} ]]
+    echo $?
 }
