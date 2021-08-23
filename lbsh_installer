@@ -33,7 +33,7 @@ function isContains(){
 }
 
 function installerForLssh(){
-    cp "$LSSH_INSTALL_HOME\lssh" "$INSTALL_HOME"
+    cp "$LSSH_INSTALL_HOME/lssh" "$INSTALL_HOME"
     # msg "lssh"
 }
 
