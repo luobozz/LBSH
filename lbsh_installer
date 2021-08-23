@@ -57,7 +57,7 @@ then
     #     msg "$2 is not supported for installation."
     elif [ "$2" == "lssh" ]
     then
-        installerForLssh()
+        installerForLssh
     else
         msg "$2 is not supported for installation."
     fi
