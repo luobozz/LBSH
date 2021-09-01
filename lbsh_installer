@@ -2,23 +2,22 @@
 #命令安装器
 SCRIPT_VERSION="1.0.0"
 SCRIPT_NAME="lbsh_installer"
+LBSH_HOME="~/.lbsh"
 
-INSTALL_SUPPORT_ARR=("lssh")
-INSTALL_HOME="./__install_test/bin"
-LSSH_INSTALL_HOME="./lssh"
+INSTALL_SUPPORT_ARR=("lssh","tester")
+INSTALL_SUPPORT_APP_HOME_ARR=("./lssh")
 
-function msg(){
-    if [ "$1" == "log" ]
-    then
-        if [ "$2" == "error" ]
-        then
+BIN_HOME="./__install_test/bin"
+
+function msg() {
+    if [ "$1" == "log" ]; then
+        if [ "$2" == "error" ]; then
             echo -e "[${SCRIPT_NAME}] $(date '+%Y-%m-%d %H:%M:%S') \e[31mERROR\e[0m: $3" 1>&2
         else
             echo "[${SCRIPT_NAME}] $(date '+%Y-%m-%d %H:%M:%S')  INFO: $2"
         fi
     else
-        if [ "$1" == "error" ]
-        then
+        if [ "$1" == "error" ]; then
             echo -e "\e[31mERROR:\e[0m $2"
         else
             echo "$*"
@@ -26,43 +25,46 @@ function msg(){
     fi
 }
 
-function isContains(){
+function isContains() {
     narr=($1)
     [[ ${narr[@]/$2/} == ${narr[@]} ]]
     echo $?
 }
 
-function installerForLssh(){
-    cp --parents "$LSSH_INSTALL_HOME/lssh" "$INSTALL_HOME/lssh"
-    # msg "lssh"
+function isExistDir() {
+    if [ $1 != "" ]; then
+        if [ ! -d "$1" ]; then
+            mkdir $1
+        fi
+    fi
 }
 
-if [ "$1" == "" ] || [ "$1" == "-h" ]
-then
+function installerForLssh() {
+    # isExistDir $LBSH_HOME
+    # TODO test to get current user home absolute,cause cant use ~/
+    echo $username
+}
+
+if [ "$1" == "" ] || [ "$1" == "-h" ]; then
     msg "   Usage: $0 [options] [command]"
     msg " "
     msg "   Commands: "
-    msg "          i,install        install"
+    msg "          i,install        install [$INSTALL_SUPPORT_ARR] for your system"
     msg "          u,unstall        unstall"
     msg " "
     msg "   Options: "
     msg "          <default>,-h     Output usage information"
     msg "          -v               Verbose mode"
-elif [ "$1" == "i" ]
-then
-    if [ "$2" == "" ]
-    then
-        msg "Unable to install empty."
-    # elif [ $(isContains "${INSTALL_SUPPORT_ARR[*]}" $2) ==  "0" ]
-    #     msg "$2 is not supported for installation."
-    elif [ "$2" == "lssh" ]
-    then
+elif [ "$1" == "i" ]; then
+    if [ "$2" == "" ]; then
+        msg "Unable to install empty, plase try to install [$INSTALL_SUPPORT_ARR]."
+    elif [ "$2" == "lssh" ]; then
+        echo 2
         installerForLssh
     else
-        msg "$2 is not supported for installation."
+        msg "$2 is not supported for installation, plase try to install [$INSTALL_SUPPORT_ARR]."
     fi
-elif [ "$1" == "-v" ]
-then
+elif [ "$1" == "-v" ]; then
     msg "${SCRIPT_NAME} version: v${SCRIPT_VERSION}."
 else
     msg "$1 is not supported by ${SCRIPT_NAME}."
