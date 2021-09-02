@@ -36,3 +36,12 @@ function isExistApp() {
         echo 0
     fi
 }
+
+# 是否存在文件否则创建
+function mkIfNotExistDir() {
+    if [ $1 != "" ]; then
+        if [ ! -d "$1" ]; then
+            mkdir $1
+        fi
+    fi
+}
