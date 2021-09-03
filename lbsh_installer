@@ -3,19 +3,18 @@
 SCRIPT_VERSION="1.0.0"
 SCRIPT_NAME="lbsh_installer"
 LBSH_HOME="$HOME/.lbsh"
-# TODO change to independent configuration
-# LBSH_HOME_CONFIG="$HOME/.lbsh"
-# $LBSH_HOME/config print
-# $LBSH_HOME/lib print
-# $LBSH_HOME/cache print
-# $LBSH_HOME/log print
+LBSH_CONFIG_HOME="$LBSH_HOME/config"
+LBSH_LIB_HOME="$LBSH_HOME/lib"
+LBSH_CACHE_HOME="$LBSH_HOME/cache"
+LBSH_LOG_HOME="$LBSH_HOME/log"
 
 INSTALL_SUPPORT_ARR=("lssh","tester")
 INSTALL_TO_BIN_HOME="./__install_test/bin"
 
-# INSTALL_LSSH_HOME="./lssh"
-# INSTALL_LSSH_CONFIG_HOME="$LBSH_HOME/"
-INSTALL_LSSH_SHELL="lssh"
+LSSH_HOME="./lssh"
+LSSH_CONFIG_HOME="$LBSH_CONFIG_HOME/lssh"
+LSSH_CONFIG_REMOTE_LIST="remote_list.config"
+LSSH_SHELL="lssh"
 
 # 消息输出统一
 function msg() {
@@ -23,21 +22,15 @@ function msg() {
         if [ "$2" == "error" ]; then
             echo -e "[${SCRIPT_NAME}] $(date '+%Y-%m-%d %H:%M:%S') \e[31mERROR\e[0m: $3" 1>&2
         else
-            echo "[${SCRIPT_NAME}] $(date '+%Y-%m-%d %H:%M:%S')  INFO: $2"
+            echo -e "[${SCRIPT_NAME}] $(date '+%Y-%m-%d %H:%M:%S')  INFO: $2"
         fi
     else
         if [ "$1" == "error" ]; then
             echo -e "\e[31mERROR:\e[0m $2"
         else
-            echo "$*"
+            echo -e "$*"
         fi
     fi
-}
-
-function isContains() {
-    narr=($1)
-    [[ ${narr[@]/$2/} == ${narr[@]} ]]
-    echo $?
 }
 
 function mkIfNotExistDir() {
@@ -55,20 +48,80 @@ function mkIfNotExistDir() {
     fi
 }
 
-function lbshHomeCheck(){
-    msg "check for lbshHome($LBSH_HOME)"
+function tcIfNotExistDir() {
+    if [ $1 != "" ]; then
+        if [ ! -f "$1" ]; then
+            if [ "$2" == "print" ]; then
+                msg "$1 is not exist,creating now."
+            fi
+            touch $1
+        else
+            if [ "$2" == "print" ]; then
+                msg "$1 is already exist."
+            fi
+        fi
+    fi
+}
+
+function readForTimes(){
+    times=3
+    if [ "$1" != "" ]; then
+        if [ "$2" != "" ]; then
+            let times=$2
+        fi
+        while [ $times -gt 0 ]; do
+            read -p "$1" inputArg
+            case $inputArg in
+                [yY]*)
+                let times=0
+                ;;
+                [nN]*)
+                    exit
+                ;;
+                *)
+                    if [ $times -eq 1 ]; then
+                        msg "run out of retry, exit."
+                        exit
+                    else
+                        let times--
+                        msg "just enter y or n, please enter again, $times more times retry."
+                    fi
+                ;;
+            esac
+        done
+    fi
+}
+
+function lbshHomeCheck() {
+    msg ">>check for lbshHome($LBSH_HOME)"
     mkIfNotExistDir $LBSH_HOME print
-    mkIfNotExistDir $LBSH_HOME/config print
-    mkIfNotExistDir $LBSH_HOME/lib print
-    mkIfNotExistDir $LBSH_HOME/cache print
-    mkIfNotExistDir $LBSH_HOME/log print
+    mkIfNotExistDir $LBSH_CONFIG_HOME print
+    mkIfNotExistDir $LBSH_LIB_HOME print
+    mkIfNotExistDir $LBSH_CACHE_HOME print
+    mkIfNotExistDir $LBSH_LOG_HOME print
+    msg "\n"
 }
 
 function installerForLssh() {
+    # 检查工具包主目录
     lbshHomeCheck
-    msg "lssh is being installed."
-    cp $INSTALL_LSSH_HOME/$INSTALL_LSSH_SHELL $INSTALL_TO_BIN_HOME/$INSTALL_LSSH_SHELL
-    msg "lssh is successfully installed()."
+
+    # 开始安装lssh
+    msg ">>creating for lssh."
+    # 检查历史版本,用户确认覆盖 
+    if [ -f "$INSTALL_TO_BIN_HOME/$LSSH_SHELL" ]; then
+        lastLsshVersion=$($INSTALL_TO_BIN_HOME/$LSSH_SHELL -v | awk '{print $3}')
+        readForTimes "lssh is already installed with $lastLsshVersion enter if you want cover? [y/n] "
+    fi
+    # 复制命令文件到bin目录
+    cp $LSSH_HOME/$LSSH_SHELL $INSTALL_TO_BIN_HOME/$LSSH_SHELL
+    version=$($INSTALL_TO_BIN_HOME/$LSSH_SHELL -v | awk '{print $3}')
+    msg "lssh is successfully installed(path=[$INSTALL_TO_BIN_HOME/$LSSH_SHELL],version=[$version])."
+    # 复制配置文件到配置目录
+    msg "adding lssh config."
+    mkIfNotExistDir $LSSH_CONFIG_HOME print
+    tcIfNotExistDir $LSSH_CONFIG_HOME/$LSSH_CONFIG_REMOTE_LIST print
+    msg "config loading finish."
 }
 
 if [ "$1" == "" ] || [ "$1" == "-h" ]; then
@@ -81,16 +134,16 @@ if [ "$1" == "" ] || [ "$1" == "-h" ]; then
     msg "   Options: "
     msg "          <default>,-h     Output usage information"
     msg "          -v               Verbose mode"
-elif [ "$1" == "i" ]; then
+    elif [ "$1" == "i" ]; then
     if [ "$2" == "" ]; then
         msg "Unable to install empty, plase try to install [$INSTALL_SUPPORT_ARR]."
-    elif [ "$2" == "lssh" ]; then
+        elif [ "$2" == "lssh" ]; then
         installerForLssh
     else
         msg "$2 is not supported for installation, plase try to install [$INSTALL_SUPPORT_ARR]."
     fi
-elif [ "$1" == "-v" ]; then
-    msg "${SCRIPT_NAME} version: v${SCRIPT_VERSION}."
+    elif [ "$1" == "-v" ]; then
+    msg "${SCRIPT_NAME} version: v${SCRIPT_VERSION}"
 else
     msg "$1 is not supported by ${SCRIPT_NAME}."
 fi

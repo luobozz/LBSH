@@ -37,11 +37,78 @@ function isExistApp() {
     fi
 }
 
-# 是否存在文件否则创建
+# 是否存在文件夹否则创建
 function mkIfNotExistDir() {
     if [ $1 != "" ]; then
         if [ ! -d "$1" ]; then
+            if [ "$2" == "print" ]; then
+                msg "$1 is not exist,creating now."
+            fi
             mkdir $1
+        else
+            if [ "$2" == "print" ]; then
+                msg "$1 is already exist."
+            fi
         fi
+    fi
+}
+
+# 是否存在文件否则创建
+function tcIfNotExistDir() {
+    if [ $1 != "" ]; then
+        if [ ! -f "$1" ]; then
+            if [ "$2" == "print" ]; then
+                msg "$1 is not exist,creating now."
+            fi
+            touch $1
+        else
+            if [ "$2" == "print" ]; then
+                msg "$1 is already exist."
+            fi
+        fi
+    fi
+}
+
+
+# 是否存在文件
+function isExistFile(){
+    if [ $1 != "" ]; then
+        if [ -f "$1" ]; then
+            echo 1
+        else
+            echo 0
+        fi
+    fi
+}
+
+# 输入判断用户确认
+# $1 read tips
+# $2 retry times default for 3
+function readForTimes(){
+    times=3
+    if [ "$1" != "" ]; then
+        if [ "$2" != "" ]; then
+            let times=$2
+        fi
+        while [ $times -gt 0 ]; do
+            read -p "$1" inputArg
+            case $inputArg in
+                [yY]*)
+                let times=0
+                ;;
+                [nN]*)
+                    exit
+                ;;
+                *)
+                    if [ $times -eq 1 ]; then
+                        msg "run out of retry, exit."
+                        exit
+                    else
+                        let times--
+                        msg "just enter y or n, please enter again, $times more times retry."
+                    fi
+                ;;
+            esac
+        done
     fi
 }
