@@ -24,13 +24,7 @@ function msg(){
 }
 
 
-if [ "$1" == "" ] || [ "$1" == "r" ]
-then
-    msg "run"
-elif [ "$1" == "ls" ]
-then
-    msg "ls"
-elif [ "$1" == "-h" ]
+if [ "$1" == "" ] || [ "$1" == "-h" ]
 then
     msg "   Usage: $0 [options] [command]"
     msg "          $0 use name or ip or id"
@@ -38,12 +32,18 @@ then
     msg "   Repositories: [sshpass]"
     msg " "
     msg "   Commands: "
-    msg "          <default>,r      Connecting a ssh session"
+    msg "          r,run            Connecting a ssh session"
     msg "          ls               Output all configured ssh sessions"
     msg " "
     msg "   Options: "
-    msg "          -h               Output usage information"
+    msg "          <default>,-h     Output usage information"
     msg "          -v               Verbose mode"
+elif [ "$1" == "ls" ]
+then
+    msg "ls"
+elif [ "$1" == "r" ] || [ "$1" == "run" ]
+    msg "run"
+then
 elif [ "$1" == "-v" ]
 then
     msg "${SCRIPT_NAME} version: v${SCRIPT_VERSION}"
