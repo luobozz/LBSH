@@ -43,19 +43,35 @@ if [ "$1" == "" ] || [ "$1" == "-h" ]; then
     msg "   Options: "
     msg "          <default>,-h     Output usage information"
     msg "          -v               Verbose mode"
-    elif [ "$1" == "ls" ] || [ "$1" == "list" ]; then
+elif [ "$1" == "ls" ] || [ "$1" == "list" ]; then
     cat $LSSH_CONFIG_HOME/$LSSH_CONFIG_REMOTE_LIST
-    elif [ "$1" == "ad" ]; then
-    # TODO support one cmd now.
-    # echo $*
-    cmdGrep=$(echo "$*"|grep -oE "\-[^\\s&^-]\s[^\\s&^-]+")
-    echo ${#cmdGrep}
-    arr=(12 36 '你好')
-    length=${#arr}
-    echo "长度为：$length"
-    elif [ "$1" == "r" ] || [ "$1" == "run" ]; then
+elif [ "$1" == "ad" ]; then
+    # TODO support single cmd now //like -n -ag -xx.
+    cmdGrep="$(echo "$*"|grep -oE "\-[^\\s&^-]\s[^\\s&^-]+")"
+    cmdGrepArr=(${cmdGrep})
+    ip=""
+    port="22"
+    way="pwd"
+    password=""
+
+    for(( i=0;i<${#cmdGrepArr[@]};i++)); do
+        pm=${cmdGrepArr[i]}
+        if [ "$pm" == "-a" ]; then
+            ip="${cmdGrepArr[i+1]}"
+        elif [ "$pm" == "-p" ]; then
+            port="${cmdGrepArr[i+1]}"
+        elif [ "$pm" == "-w" ]; then
+            way="${cmdGrepArr[i+1]}"
+        elif [ "$pm" == "-k" ]; then
+            password="${cmdGrepArr[i+1]}"
+        fi
+    done;
+    
+    msg ip=$ip,port=$port,way=$way,password=$password
+
+elif [ "$1" == "r" ] || [ "$1" == "run" ]; then
     msg "run"
-    elif [ "$1" == "-v" ]; then
+elif [ "$1" == "-v" ]; then
     msg "${SCRIPT_NAME} version: v${SCRIPT_VERSION}"
 else
     msg "$1 is not supported by ${SCRIPT_NAME}."
