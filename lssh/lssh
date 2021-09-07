@@ -3,6 +3,11 @@
 # 依赖列表
 SCRIPT_VERSION="1.0.0"
 SCRIPT_NAME="lb-ssh"
+LBSH_HOME="$HOME/.lbsh"
+LBSH_CONFIG_HOME="$LBSH_HOME/config"
+
+LSSH_CONFIG_HOME="$LBSH_CONFIG_HOME/lssh"
+LSSH_CONFIG_REMOTE_LIST="remote_list.config"
 
 function msg(){
     if [ "$1" == "log" ]
@@ -24,8 +29,7 @@ function msg(){
 }
 
 
-if [ "$1" == "" ] || [ "$1" == "-h" ]
-then
+if [ "$1" == "" ] || [ "$1" == "-h" ]; then
     msg "   Usage: $0 [options] [command]"
     msg "          $0 use name or ip or id"
     msg " "
@@ -33,19 +37,25 @@ then
     msg " "
     msg "   Commands: "
     msg "          r,run            Connecting a ssh session"
-    msg "          ls               Output all configured ssh sessions"
+    msg "          ls,list          Output all configured ssh sessions"
+    msg "          ad               add a remote to remote list"
     msg " "
     msg "   Options: "
     msg "          <default>,-h     Output usage information"
     msg "          -v               Verbose mode"
-elif [ "$1" == "ls" ]
-then
-    msg "ls"
-elif [ "$1" == "r" ] || [ "$1" == "run" ]
+    elif [ "$1" == "ls" ] || [ "$1" == "list" ]; then
+    cat $LSSH_CONFIG_HOME/$LSSH_CONFIG_REMOTE_LIST
+    elif [ "$1" == "ad" ]; then
+    # TODO support one cmd now.
+    # echo $*
+    cmdGrep=$(echo "$*"|grep -oE "\-[^\\s&^-]\s[^\\s&^-]+")
+    echo ${#cmdGrep}
+    arr=(12 36 '你好')
+    length=${#arr}
+    echo "长度为：$length"
+    elif [ "$1" == "r" ] || [ "$1" == "run" ]; then
     msg "run"
-then
-elif [ "$1" == "-v" ]
-then
+    elif [ "$1" == "-v" ]; then
     msg "${SCRIPT_NAME} version: v${SCRIPT_VERSION}"
 else
     msg "$1 is not supported by ${SCRIPT_NAME}."

@@ -9,10 +9,10 @@ LBSH_LIB_HOME="$LBSH_HOME/lib"
 LBSH_CACHE_HOME="$LBSH_HOME/cache"
 LBSH_LOG_HOME="$LBSH_HOME/log"
 
-INSTALL_SUPPORT_ARR=("lssh","tester")
+INSTALL_SUPPORT_ARR=("lssh" "tester")
 INSTALL_TO_BIN_HOME="/usr/bin"
 
-LSSH_HOME="./lssh"
+LSSH_INSTALL_HOME="./lssh"
 LSSH_CONFIG_HOME="$LBSH_CONFIG_HOME/lssh"
 LSSH_CONFIG_REMOTE_LIST="remote_list.config"
 LSSH_SHELL="lssh"
@@ -160,7 +160,7 @@ function installerForLssh() {
         readForTimes "lssh is already installed with $lastLsshVersion enter if you want cover? [y/n] "
     fi
     # 复制命令文件到bin目录
-    cp $LSSH_HOME/$LSSH_SHELL $INSTALL_TO_BIN_HOME/$LSSH_SHELL
+    cp $LSSH_INSTALL_HOME/$LSSH_SHELL $INSTALL_TO_BIN_HOME/$LSSH_SHELL
     version=$($INSTALL_TO_BIN_HOME/$LSSH_SHELL -v | awk '{print $3}')
     msg "lssh is successfully installed(path=[$INSTALL_TO_BIN_HOME/$LSSH_SHELL],version=[$version])."
     # 复制配置文件到配置目录
@@ -174,7 +174,7 @@ if [ "$1" == "" ] || [ "$1" == "-h" ]; then
     msg "   Usage: $0 [options] [command]"
     msg " "
     msg "   Commands: "
-    msg "          i,install        install [$INSTALL_SUPPORT_ARR] for your system"
+    msg "          i,install        install [${INSTALL_SUPPORT_ARR[*]}] for your system"
     msg "          u,unstall        unstall"
     msg " "
     msg "   Options: "
@@ -183,11 +183,11 @@ if [ "$1" == "" ] || [ "$1" == "-h" ]; then
 elif [ "$1" == "i" ]; then
     lbshBanne welcome
     if [ "$2" == "" ]; then
-        msg "Unable to install empty, plase try to install [$INSTALL_SUPPORT_ARR]."
+        msg "Unable to install empty, plase try to install [${INSTALL_SUPPORT_ARR[*]}]."
     elif [ "$2" == "lssh" ]; then
         installerForLssh
     else
-        msg "$2 is not supported for installation, plase try to install [$INSTALL_SUPPORT_ARR]."
+        msg "$2 is not supported for installation, plase try to install [${INSTALL_SUPPORT_ARR[*]}]."
     fi
     lbshBanne quit
 elif [ "$1" == "-v" ]; then
