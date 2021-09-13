@@ -148,3 +148,9 @@ function bannerColor() {
     tput sgr 0
     echo
 }
+
+# 获得一个uuid
+function getUuid(){
+    uuid=`uuidgen`
+    echo ${uuid//-/}
+}

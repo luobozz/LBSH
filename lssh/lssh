@@ -8,6 +8,7 @@ LBSH_CONFIG_HOME="$LBSH_HOME/config"
 
 LSSH_CONFIG_HOME="$LBSH_CONFIG_HOME/lssh"
 LSSH_CONFIG_REMOTE_LIST="remote_list.config"
+LSSH_CONFIG_REMOTE_LIST_MARK="re|"
 
 function msg(){
     if [ "$1" == "log" ]
@@ -28,6 +29,10 @@ function msg(){
     fi
 }
 
+function getUuid(){
+    uuid=`uuidgen`
+    echo ${uuid//-/}
+}
 
 if [ "$1" == "" ] || [ "$1" == "-h" ]; then
     msg "   Usage: $0 [options] [command]"
@@ -43,6 +48,7 @@ if [ "$1" == "" ] || [ "$1" == "-h" ]; then
     msg "                           -p port(default=22,the remote host port"
     msg "                           -w way(default=pwd,the authentication mode for accessing remote hosts(pwd or pk"
     msg "                           -k key,the key of authentication mode"
+    msg "                           -n name(default=uuid,the custom name of remote host"
     msg " "
     msg "   Options: "
     msg "          <default>,-h     Output usage information"
@@ -57,6 +63,7 @@ elif [ "$1" == "ad" ]; then
     port="22"
     way="pwd"
     password=""
+    name=""
 
     for(( i=0;i<${#cmdGrepArr[@]};i++)); do
         pm=${cmdGrepArr[i]}
@@ -68,10 +75,22 @@ elif [ "$1" == "ad" ]; then
             way="${cmdGrepArr[i+1]}"
         elif [ "$pm" == "-k" ]; then
             password="${cmdGrepArr[i+1]}"
+        elif [ "$pm" == "-n" ]; then
+            name="${cmdGrepArr[i+1]}"
         fi
     done;
-    
-    msg ip=$ip,port=$port,way=$way,password=$password
+
+    exist=`grep "$ip $port" $LSSH_CONFIG_HOME/$LSSH_CONFIG_REMOTE_LIST`
+    if [ ${#exist} -le 0 ]; then
+        uuid=`getUuid`
+        if [ "$name" == "" ]; then
+            name="$uuid"
+        fi
+        echo "$LSSH_CONFIG_REMOTE_LIST_MARK$uuid $ip $port $way $password $name" >> $LSSH_CONFIG_HOME/$LSSH_CONFIG_REMOTE_LIST
+        msg "uuid=$uuid,ip=$ip,port=$port,way=$way,password=$password,name=$name)",successfully add into remote list.
+    else
+        msg "ip=$ip,port=$port) already exist,($exist),please use [ -ed (name or uuid) .. ] to modify it."
+    fi
 
 elif [ "$1" == "r" ] || [ "$1" == "run" ]; then
     msg "run"
