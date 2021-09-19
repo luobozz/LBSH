@@ -46,9 +46,10 @@ if [ "$1" == "" ] || [ "$1" == "-h" ]; then
     msg "          ad               add a remote to remote list(only support single cmd now"
     msg "                           -a address,the remote host address"
     msg "                           -p port(default=22,the remote host port"
+    msg "                           -u user(default=root,the remote host login name"
     msg "                           -w way(default=pwd,the authentication mode for accessing remote hosts(pwd or pk"
     msg "                           -k key,the key of authentication mode"
-    msg "                           -n name(default=uuid,the custom name of remote host"
+    msg "                           -n name(default=\$uuid,the custom name of remote host"
     msg " "
     msg "   Options: "
     msg "          <default>,-h     Output usage information"
@@ -64,6 +65,7 @@ elif [ "$1" == "ad" ]; then
     way="pwd"
     password=""
     name=""
+    user="root"
 
     for(( i=0;i<${#cmdGrepArr[@]};i++)); do
         pm=${cmdGrepArr[i]}
@@ -77,6 +79,8 @@ elif [ "$1" == "ad" ]; then
             password="${cmdGrepArr[i+1]}"
         elif [ "$pm" == "-n" ]; then
             name="${cmdGrepArr[i+1]}"
+        elif [ "$pm" == "-u" ]; then
+            user="${cmdGrepArr[i+1]}"
         fi
     done;
 
@@ -86,8 +90,8 @@ elif [ "$1" == "ad" ]; then
         if [ "$name" == "" ]; then
             name="$uuid"
         fi
-        echo "LSSH_CONFIG_REMOTE_LIST_MARK|$uuid $ip $port $way $password $name" >> $LSSH_CONFIG_HOME/$LSSH_CONFIG_REMOTE_LIST
-        msg "uuid=$uuid,ip=$ip,port=$port,way=$way,password=$password,name=$name)",successfully add into remote list.
+        echo "$LSSH_CONFIG_REMOTE_LIST_MARK$uuid $ip $port $user $way $password $name" >> $LSSH_CONFIG_HOME/$LSSH_CONFIG_REMOTE_LIST
+        msg "uuid=$uuid,ip=$ip,port=$port,user=$user,way=$way,password=$password,name=$name)",successfully add into remote list.
     else
         msg "ip=$ip,port=$port) already exist,($exist),please use [ -ed (name or uuid) .. ] to modify it."
     fi
