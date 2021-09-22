@@ -154,3 +154,12 @@ function getUuid(){
     uuid=`uuidgen`
     echo ${uuid//-/}
 }
+
+function getContinuousRepeat(){
+    seg=" "
+    if [ "$2" != "" ]; then
+        seg="$2"
+    fi
+    re=$(seq -s "$seg" "$1"|sed "s/[0-9]//g")
+    echo $re
+}

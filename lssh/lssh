@@ -8,7 +8,15 @@ LBSH_CONFIG_HOME="$LBSH_HOME/config"
 
 LSSH_CONFIG_HOME="$LBSH_CONFIG_HOME/lssh"
 LSSH_CONFIG_REMOTE_LIST="remote_list.config"
-LSSH_CONFIG_REMOTE_LIST_MARK="re|"
+LSSH_CONFIG_REMOTE_LIST_MARK=""
+
+uuid=""
+ip=""
+port="22"
+way="pwd"
+password=""
+name=""
+user="root"
 
 function msg(){
     if [ "$1" == "log" ]
@@ -34,38 +42,19 @@ function getUuid(){
     echo ${uuid//-/}
 }
 
-if [ "$1" == "" ] || [ "$1" == "-h" ]; then
-    msg "   Usage: $0 [options] [command]"
-    msg "          $0 use name or ip or id"
-    msg " "
-    msg "   Repositories: [sshpass]"
-    msg " "
-    msg "   Commands: "
-    msg "          r,run            Connecting a ssh session"
-    msg "          ls,list          Output all configured ssh sessions"
-    msg "          ad               add a remote to remote list(only support single cmd now"
-    msg "                           -a address,the remote host address"
-    msg "                           -p port(default=22,the remote host port"
-    msg "                           -u user(default=root,the remote host login name"
-    msg "                           -w way(default=pwd,the authentication mode for accessing remote hosts(pwd or pk"
-    msg "                           -k key,the key of authentication mode"
-    msg "                           -n name(default=\$uuid,the custom name of remote host"
-    msg " "
-    msg "   Options: "
-    msg "          <default>,-h     Output usage information"
-    msg "          -v               Verbose mode"
-elif [ "$1" == "ls" ] || [ "$1" == "list" ]; then
-    cat $LSSH_CONFIG_HOME/$LSSH_CONFIG_REMOTE_LIST
-elif [ "$1" == "ad" ]; then
+function getContinuousRepeat(){
+    seg=" "
+    if [ "$2" != "" ]; then
+        seg="$2"
+    fi
+    re=$(seq -s "$seg" "$1"|sed "s/[0-9]//g")
+    echo $re
+}
+
+function remoteConfigIuput(){
     # TODO support single cmd now //like -n -ag -xx.
-    cmdGrep="$(echo "$*"|grep -oE "\-[^\\s&^-]\s[^\\s&^-]+")"
+    cmdGrep="$(echo "$*"|grep -oE "\-[^\\s&^-]\s[^\-]+")"
     cmdGrepArr=(${cmdGrep})
-    ip=""
-    port="22"
-    way="pwd"
-    password=""
-    name=""
-    user="root"
 
     for(( i=0;i<${#cmdGrepArr[@]};i++)); do
         pm=${cmdGrepArr[i]}
@@ -84,20 +73,82 @@ elif [ "$1" == "ad" ]; then
         fi
     done;
 
+
+    if [ "$name" == "" ]; then
+        name="$uuid"
+    fi
+}
+
+function remoteConfigInit(){
+    iUuid=`getUuid`;
+    iIp=$ip;
+    iPort=$port;
+    iUser=$user;
+    iWay=$way;
+    iPassword=$password;
+    iName=$name;
+
+    if [ "$1" != "" ]; then
+        iUuid="$1"
+    fi
+
+    if [ "$1" != "" ]; then
+        iUuid="$1"
+    fi
+
+
+
+    echo $LSSH_CONFIG_REMOTE_LIST_MARK$iUuid $iIp $iPort $iUser $iWay $iPassword $iName
+}
+
+if [ "$1" == "" ] || [ "$1" == "-h" ]; then
+    msg "   Usage: $0 [options] [command]"
+    msg "          $0 use name or ip or id"
+    msg " "
+    msg "   Repositories: [sshpass]"
+    msg " "
+    msg "   Commands: "
+    msg "          ls,list          Output all configured ssh sessions"
+    msg "          ad               Add a remote to remote list(only support single cmd now"
+    msg "                               -a address,the remote host address"
+    msg "                               -p port(default=22,the remote host port"
+    msg "                               -u user(default=root,the remote host login name"
+    msg "                               -w way(default=pwd,the authentication mode for accessing remote hosts(pwd or pk"
+    msg "                               -k key,the key of authentication mode"
+    msg "                               -n name(default=\$uuid,the custom name of remote host"
+    msg "          ed               Edit a remote in remote list(search with uuid or name"
+    msg "          rm               Remove a remote from remote list(search with uuid or name"
+    msg "          cp               Cp locate file to remote(rely on scp"
+    msg "          conn             Connecting a ssh session(rely on ssh"
+    msg " "
+    msg "   Options: "
+    msg "          <default>,-h     Output usage information"
+    msg "          -v               Verbose mode"
+elif [ "$1" == "ls" ] || [ "$1" == "list" ]; then
+    printf "%-8s %-14s %-6s %-5s %-10s %-38s %-15s\n" USER "IP ADDR" PORT WAY PWD UUID NAME
+    awk '{printf "%-8s %-14s %-6s %-5s %-10s %-38s %-15s\n",$4,$2,$3,$5,$6,$1,$7}' $LSSH_CONFIG_HOME/$LSSH_CONFIG_REMOTE_LIST
+elif [ "$1" == "ed" ]; then
+    # echo "ed"
+    wf=`grep -E $2 $LSSH_CONFIG_HOME/$LSSH_CONFIG_REMOTE_LIST`
+    echo $wf
+    remoteConfigIuput $*
+    echo `remoteConfigInit`
+elif [ "$1" == "rm" ]; then
+    echo "rm"
+elif [ "$1" == "cp" ]; then
+    msg "cp"
+elif [ "$1" == "conn" ]; then
+    msg "conn"
+elif [ "$1" == "ad" ]; then
+    remoteConfigIuput $*
+    
     exist=`grep "$ip $port" $LSSH_CONFIG_HOME/$LSSH_CONFIG_REMOTE_LIST`
     if [ ${#exist} -le 0 ]; then
-        uuid=`getUuid`
-        if [ "$name" == "" ]; then
-            name="$uuid"
-        fi
-        echo "$LSSH_CONFIG_REMOTE_LIST_MARK$uuid $ip $port $user $way $password $name" >> $LSSH_CONFIG_HOME/$LSSH_CONFIG_REMOTE_LIST
+        echo `remoteConfigInit` >> $LSSH_CONFIG_HOME/$LSSH_CONFIG_REMOTE_LIST
         msg "uuid=$uuid,ip=$ip,port=$port,user=$user,way=$way,password=$password,name=$name)",successfully add into remote list.
     else
         msg "ip=$ip,port=$port) already exist,($exist),please use [ -ed (name or uuid) .. ] to modify it."
     fi
-
-elif [ "$1" == "r" ] || [ "$1" == "run" ]; then
-    msg "run"
 elif [ "$1" == "-v" ]; then
     msg "${SCRIPT_NAME} version: v${SCRIPT_VERSION}"
 else
