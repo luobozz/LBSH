@@ -13,6 +13,9 @@ INSTALL_SUPPORT_ARR=("lssh" "tester")
 INSTALL_TO_BIN_HOME="/usr/bin"
 
 LSSH_INSTALL_HOME="./lssh"
+LSSH_LIB_HOME="$LBSH_LIB_HOME/lssh"
+LSSH_INSTALL_LIB_HOME="$LSSH_INSTALL_HOME/lib"
+LSSH_INSTALL_LIB_ARR=("remote.py")
 LSSH_CONFIG_HOME="$LBSH_CONFIG_HOME/lssh"
 LSSH_CONFIG_REMOTE_LIST="remote_list.config"
 LSSH_SHELL="lssh"
@@ -160,7 +163,18 @@ function installerForLssh() {
         readForTimes "lssh is already installed with $lastLsshVersion enter if you want cover? [y/n] "
     fi
 
-    # if [ ! -f "$1" ]; then
+    # 检查所需依赖
+    msg ">>checking lib for lssh."
+    for lib in ${LSSH_INSTALL_LIB_ARR[*]} 
+    do
+        if [ ! -f "$LSSH_INSTALL_LIB_HOME/$lib" ]; then
+            msg "lib<$lib> is not exist,please check your installer integrity from https://github.com/luobozz/my_shell"
+            lbshBanne quit
+            exit
+        else
+            msg "lib<$lib> exist,check success"
+        fi
+    done
 
     # 复制命令文件到bin目录
     cp $LSSH_INSTALL_HOME/$LSSH_SHELL $INSTALL_TO_BIN_HOME/$LSSH_SHELL
@@ -171,8 +185,15 @@ function installerForLssh() {
     mkIfNotExistDir $LSSH_CONFIG_HOME print
     tcIfNotExistDir $LSSH_CONFIG_HOME/$LSSH_CONFIG_REMOTE_LIST print
     msg "config loading finish."
-    # 复制依赖文件到依赖目录
-    # msg ""
+    # 依赖检查通过后复制依赖文件到依赖目录
+    mkIfNotExistDir $LSSH_LIB_HOME print
+    for lib in ${LSSH_INSTALL_LIB_ARR[*]} 
+    do
+        cp $LSSH_INSTALL_LIB_HOME/$lib $LSSH_LIB_HOME/
+        msg "lib<$lib> install success"
+    done
+
+
 }
 
 if [ "$1" == "" ] || [ "$1" == "-h" ]; then
