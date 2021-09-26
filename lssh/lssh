@@ -36,6 +36,11 @@ function getUuid(){
     echo ${uuid//-/}
 }
 
+function remote(){
+    hdMsg=`python $LBSH_LIB_HOME/$LSSH_CONFIG_REMOTE_SCRIPT -p "$1" -cp $LSSH_CONFIG_HOME/$LSSH_CONFIG_REMOTE_LIST`
+    msg $hdMsg
+}
+
 
 if [ "$1" == "" ] || [ "$1" == "-h" ]; then
     msg "   Usage: $0 [options] [command]"
@@ -64,22 +69,15 @@ elif [ "$1" == "ls" ] || [ "$1" == "list" ]; then
     printf "%-8s %-14s %-6s %-5s %-10s %-38s %-15s\n" USER "IP ADDR" PORT WAY PWD UUID NAME
     awk '{printf "%-8s %-14s %-6s %-5s %-10s %-38s %-15s\n",$4,$2,$3,$5,$6,$1,$7}' $LSSH_CONFIG_HOME/$LSSH_CONFIG_REMOTE_LIST
 elif [ "$1" == "ed" ]; then
-    # echo $*
-    echo `python $LBSH_LIB_HOME/$LSSH_CONFIG_REMOTE_SCRIPT -p "$*"`
-    # echo `python $LBSH_LIB_HOME/$LSSH_CONFIG_REMOTE_SCRIPT $LSSH_CONFIG_HOME/$LSSH_CONFIG_REMOTE_LIST`
+    remote $*
 elif [ "$1" == "rm" ]; then
-    echo "rm"
+    remote $*
 elif [ "$1" == "cp" ]; then
     msg "cp"
 elif [ "$1" == "conn" ]; then
     msg "conn"
 elif [ "$1" == "ad" ]; then
-    hdMsg=`python $LBSH_LIB_HOME/$LSSH_CONFIG_REMOTE_SCRIPT -p "$*" -cp $LSSH_CONFIG_HOME/$LSSH_CONFIG_REMOTE_LIST`
-    echo $hdMsg
-    # exist=`grep "$ip $port" $LSSH_CONFIG_HOME/$LSSH_CONFIG_REMOTE_LIST`
-    # if [ ${#exist} -le 0 ]; then
-    #     echo `remoteConfigInit` >> $LSSH_CONFIG_HOME/$LSSH_CONFIG_REMOTE_LIST
-    #     msg "uuid=$uuid,ip=$ip,port=$port,user=$user,way=$way,password=$password,name=$name)",successfully add into remote list.
+    remote $*
 elif [ "$1" == "-v" ]; then
     msg "${SCRIPT_NAME} version: v${SCRIPT_VERSION}"
 else
