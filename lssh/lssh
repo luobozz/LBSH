@@ -37,7 +37,7 @@ function getUuid(){
 }
 
 function remote(){
-    hdMsg=`python $LBSH_LIB_HOME/$LSSH_CONFIG_REMOTE_SCRIPT -p "$1" -cp $LSSH_CONFIG_HOME/$LSSH_CONFIG_REMOTE_LIST`
+    hdMsg=`python $LBSH_LIB_HOME/$LSSH_CONFIG_REMOTE_SCRIPT -p "$*" -cp $LSSH_CONFIG_HOME/$LSSH_CONFIG_REMOTE_LIST`
     msg $hdMsg
 }
 

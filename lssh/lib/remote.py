@@ -10,7 +10,7 @@ REMOTE_CONFIG_LIST_PATH = ""
 class MsgFormat:
     @staticmethod
     def remoteExistMsg(remote, reason):
-        return "ip={},port={}) already exist,(because of {}),please use [ -ed (name or uuid) .. ] to modify it.".format(remote.ip, remote.port, reason)
+        return "ip={},port={}) already exist,(because of {}),please use [ ed (name or uuid) .. ] to modify it.".format(remote.ip, remote.port, reason)
 
 
 class Remote:
@@ -119,7 +119,7 @@ def addRemote(pArr):
     initProperties(remote, pArr)
     file=RemoteConfigListFile.getRemoteConfigFile();
     RemoteConfigListFile.isExistRemote(file, remote)
-    file.write("\n"+remote.to_print())
+    file.write(remote.to_print())
     print("uuid={},ip={},port={},user={},way={},password={},name={}),successfully add into remote list".format(remote.uuid,remote.ip,remote.port,remote.user,remote.way,remote.password,remote.name))
 
 
@@ -135,11 +135,12 @@ def inputParser(str):
     cmdsp = str.split(" ")
     if(len(cmdsp) <= 1):
         print("remote properties is not allows")
-    if(cmdsp[0] == "ad"):
+        exit()
+    elif(cmdsp[0] == "ad"):
         addRemote(cmdsp[1:len(cmdsp)])
-    if(cmdsp[0] == "ed"):
+    elif(cmdsp[0] == "ed"):
         editRemote(cmdsp[1:len(cmdsp)])
-    if(cmdsp[0] == "rm"):
+    elif(cmdsp[0] == "rm"):
         removeRemote(cmdsp[1:len(cmdsp)])
 
 
