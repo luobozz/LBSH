@@ -78,9 +78,13 @@ class Remote:
 class RemoteConfigListFile:
     @staticmethod
     def getRemoteConfigFile():
-        file = open(REMOTE_CONFIG_LIST_PATH, "a+", encoding="utf-8")
+        file = open(REMOTE_CONFIG_LIST_PATH, "w+", encoding="utf-8")
         file.seek(0)
         return file
+    def setRemoteConfigFile(file,remote:Remote):
+        lines=file.readlines()
+        lines.append(remote.to_print())
+        file.writelines(lines)
 
     @staticmethod
     def isExistRemote(file, remote: Remote):
@@ -119,12 +123,16 @@ def addRemote(pArr):
     initProperties(remote, pArr)
     file=RemoteConfigListFile.getRemoteConfigFile();
     RemoteConfigListFile.isExistRemote(file, remote)
-    file.write(remote.to_print())
+    # file.write(remote.to_print()+"\n")
+    RemoteConfigListFile.setRemoteConfigFile(file,remote)
     print("uuid={},ip={},port={},user={},way={},password={},name={}),successfully add into remote list".format(remote.uuid,remote.ip,remote.port,remote.user,remote.way,remote.password,remote.name))
 
 
 def editRemote(pArr):
-    print("ed", pArr)
+    remote=Remote()
+    initProperties(remote, pArr)
+    print(remote)
+    # print("ed", pArr)
 
 
 def removeRemote(pArr):
