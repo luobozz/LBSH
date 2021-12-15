@@ -1,10 +1,11 @@
 #!/bin/bash
 # ssh增强 用于保存会话快速登录
 # 依赖列表
-SCRIPT_VERSION="1.0.0"
+SCRIPT_VERSION="1.0.1"
 SCRIPT_NAME="lb-ssh"
 LBSH_HOME="$HOME/.lbsh"
-LBSH_CONFIG_HOME="$LBSH_HOME/config"
+# LBSH_CONFIG_HOME="$LBSH_HOME/config"
+LBSH_CONFIG_HOME="/mnt/e/code/gitCode/luobo/my_shell/lssh/config"
 # LBSH_LIB_HOME="$LBSH_HOME/lib"
 LBSH_LIB_HOME="./lib"
 
@@ -43,10 +44,12 @@ function remote(){
 
 
 if [ "$1" == "" ] || [ "$1" == "-h" ]; then
+    msg "   Version: v${SCRIPT_VERSION}"
+    msg " "
     msg "   Usage: $0 [options] [command]"
     msg "          $0 use name or ip or id"
     msg " "
-    msg "   Repositories: [sshpass]"
+    msg "   Repositories: [python,sshpass]"
     msg " "
     msg "   Commands: "
     msg "          ls,list          Output all configured ssh sessions"

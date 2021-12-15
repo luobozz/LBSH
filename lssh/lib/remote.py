@@ -14,14 +14,23 @@ class MsgFormat:
 
 
 class Remote:
-    def __init__(self):
-        self.uuid = ''.join(str(uuid.uuid4()).split("-"))
-        self.ip = ""
-        self.port = "22"
-        self.way = "pwd"
-        self.password = ""
-        self.name = ""
-        self.user = "root"
+    def __init__(self, isCreateNone=None):
+        if(isCreateNone):
+            self.uuid = ""
+            self.ip = ""
+            self.port = ""
+            self.way = ""
+            self.password = ""
+            self.name = ""
+            self.user = ""
+        else:
+            self.uuid = ''.join(str(uuid.uuid4()).split("-"))
+            self.ip = ""
+            self.port = "22"
+            self.way = "pwd"
+            self.password = ""
+            self.name = ""
+            self.user = "root"
 
     def s_uuid(self, uuid):
         self.uuid = uuid
@@ -77,62 +86,73 @@ class Remote:
 
 class RemoteConfigListFile:
     @staticmethod
-    def getRemoteConfigFile():
+    def getRemoteConfigFile(mode="w+"):
         file = open(REMOTE_CONFIG_LIST_PATH, "w+", encoding="utf-8")
         file.seek(0)
+        print(file,file.readlines(),file.readable())
         return file
-    def setRemoteConfigFile(file,remote:Remote):
-        lines=file.readlines()
+
+    def setRemoteConfigFile(file, remote: Remote):
+        lines = file.readlines()
         lines.append(remote.to_print())
-        file.writelines(lines)
+        # file.writelines(lines)
 
     @staticmethod
     def isExistRemote(file, remote: Remote):
-        needExit=False;
         try:
             lines = file.readlines()
+            # print(file,lines)
             for line in lines:
-                line=line.replace("\n","")
-                if(len(line)<=0):
+                line = line.replace("\n", "")
+                if(len(line) <= 0):
                     continue
                 fRemote = Remote().s_by_print(line)
                 if fRemote.uuid == remote.uuid:
                     print(MsgFormat.remoteExistMsg(
                         remote, "uuid[{}] exist".format(remote.uuid)))
-                    needExit=True
-                    break
+                    return [True, fRemote]
                 elif fRemote.name == remote.name:
                     print(MsgFormat.remoteExistMsg(
                         remote, "name[{}] exist".format(remote.name)))
-                    needExit=True
-                    break
+                    return [True, fRemote]
                 elif fRemote.ip == remote.ip and fRemote.port == remote.port:
                     print(MsgFormat.remoteExistMsg(
                         remote, "ip:port[{}:{}] exist".format(remote.ip, remote.port)))
-                    needExit=True
-                    break
+                    return [True, fRemote]
         except print(0):
-            print("The config file content is on error,please check it at '",REMOTE_CONFIG_LIST_PATH,"'")
+            print("The config file content is on error,please check it at '",
+                  REMOTE_CONFIG_LIST_PATH, "'")
             exit()
-        if(needExit):
-            exit()
+        return [False, None]
 
 
 def addRemote(pArr):
     remote = Remote()
     initProperties(remote, pArr)
-    file=RemoteConfigListFile.getRemoteConfigFile();
-    RemoteConfigListFile.isExistRemote(file, remote)
-    # file.write(remote.to_print()+"\n")
-    RemoteConfigListFile.setRemoteConfigFile(file,remote)
-    print("uuid={},ip={},port={},user={},way={},password={},name={}),successfully add into remote list".format(remote.uuid,remote.ip,remote.port,remote.user,remote.way,remote.password,remote.name))
+    file = RemoteConfigListFile.getRemoteConfigFile()
+    if(RemoteConfigListFile.isExistRemote(file, remote)[0]):
+        exit()
+    else:
+        RemoteConfigListFile.setRemoteConfigFile(file, remote)
+        print("uuid={},ip={},port={},user={},way={},password={},name={}),successfully add into remote list".format(
+            remote.uuid, remote.ip, remote.port, remote.user, remote.way, remote.password, remote.name))
 
 
 def editRemote(pArr):
-    remote=Remote()
-    initProperties(remote, pArr)
-    print(remote)
-    # print("ed", pArr)
+    remote = Remote(1)
+    if(len(pArr) <= 1 or pArr[0].find('-') >= 0):
+        print(
+            "The parameter is not allow, please use uuid/name like 'lssh ed uuid/name [...editArgs]'")
+    else:
+        file = RemoteConfigListFile.getRemoteConfigFile()
+        remote.s_uuid(pArr[0])
+        remote.s_name(pArr[0])
+        # print(file.readlines())
+        # findRemote = RemoteConfigListFile.isExistRemote(file, remote)
+        # print(findRemote)
+        # print(pArr[1:len(pArr)])
+        # initProperties(remote, pArr[1:len(pArr)])
+    # print(remote.to_print())
 
 
 def removeRemote(pArr):
