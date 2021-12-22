@@ -60,7 +60,7 @@ if [ "$1" == "" ] || [ "$1" == "-h" ]; then
     msg "                               -w way(default=pwd,the authentication mode for accessing remote hosts(pwd or pk"
     msg "                               -k key,the key of authentication mode"
     msg "                               -n name(default=\$uuid,the custom name of remote host"
-    msg "          ed               Edit a remote in remote list(search with uuid or name"
+    msg "          ed               Edit a remote in remote list(search with uuid or name likes [lssh ed uuid/name (-n name ...editArgs)]"
     msg "          rm               Remove a remote from remote list(search with uuid or name"
     msg "          cp               Cp locate file to remote(rely on scp"
     msg "          conn             Connecting a ssh session(rely on ssh"
