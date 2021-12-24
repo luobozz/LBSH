@@ -1,4 +1,5 @@
 #!/bin/bash
+# TODO 重新梳理安装目录
 #命令安装器
 SCRIPT_VERSION="1.0.0"
 SCRIPT_NAME="lbsh_installer"

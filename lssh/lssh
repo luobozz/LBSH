@@ -1,17 +1,17 @@
 #!/bin/bash
 # ssh增强 用于保存会话快速登录
 # 依赖列表
-SCRIPT_VERSION="1.0.1"
+SCRIPT_VERSION="1.0.4"
 SCRIPT_NAME="lb-ssh"
 LBSH_HOME="$HOME/.lbsh"
-# LBSH_CONFIG_HOME="$LBSH_HOME/config"
-LBSH_CONFIG_HOME="/mnt/e/code/gitCode/luobo/my_shell/lssh/config"
-# LBSH_LIB_HOME="$LBSH_HOME/lib"
-LBSH_LIB_HOME="./lib"
+LBSH_CONFIG_HOME="$LBSH_HOME/config"
+LBSH_LIB_HOME="$LBSH_HOME/lib"
 
 LSSH_CONFIG_HOME="$LBSH_CONFIG_HOME/lssh"
 LSSH_CONFIG_REMOTE_LIST="remote_list.config"
-LSSH_CONFIG_REMOTE_SCRIPT="remote.py"
+LSSH_CONFIG_REMOTE_SCRIPT="lssh/remote.py"
+
+REMOTE_CALLBACK_SPLIT_FLAG="(//s)"
 
 function msg(){
     if [ "$1" == "log" ]
@@ -38,10 +38,20 @@ function getUuid(){
 }
 
 function remote(){
-    hdMsg=`python $LBSH_LIB_HOME/$LSSH_CONFIG_REMOTE_SCRIPT -p "$*" -cp $LSSH_CONFIG_HOME/$LSSH_CONFIG_REMOTE_LIST`
+    hdMsg=`python $LBSH_LIB_HOME/$LSSH_CONFIG_REMOTE_SCRIPT -p "$*" -cp $LSSH_CONFIG_HOME/$LSSH_CONFIG_REMOTE_LIST -cbsp $REMOTE_CALLBACK_SPLIT_FLAG`
     msg $hdMsg
 }
 
+function remote_cb(){
+    hdMsg=`python $LBSH_LIB_HOME/$LSSH_CONFIG_REMOTE_SCRIPT -p "$*" -cp $LSSH_CONFIG_HOME/$LSSH_CONFIG_REMOTE_LIST -cbsp $REMOTE_CALLBACK_SPLIT_FLAG`
+    array=(${hdMsg})
+    if [ "${array[0]}" == "success" ]; then
+        cmd=${array[1]//$REMOTE_CALLBACK_SPLIT_FLAG/ }
+        ${cmd}
+    else
+        msg $hdMsg
+    fi
+}
 
 if [ "$1" == "" ] || [ "$1" == "-h" ]; then
     msg "   Version: v${SCRIPT_VERSION}"
@@ -52,7 +62,7 @@ if [ "$1" == "" ] || [ "$1" == "-h" ]; then
     msg "   Repositories: [python,sshpass]"
     msg " "
     msg "   Commands: "
-    msg "          ls,list          Output all configured ssh sessions"
+    msg "          ps,ls,list       Output all configured ssh sessions"
     msg "          ad               Add a remote to remote list(only support single cmd now"
     msg "                               -a address,the remote host address"
     msg "                               -p port(default=22,the remote host port"
@@ -63,25 +73,25 @@ if [ "$1" == "" ] || [ "$1" == "-h" ]; then
     msg "          ed               Edit a remote in remote list(search with uuid or name likes [lssh ed uuid/name (-n name ...editArgs)]"
     msg "          rm               Remove a remote from remote list(search with uuid or name"
     msg "          cp               Cp locate file to remote(rely on scp"
-    msg "          conn             Connecting a ssh session(rely on ssh"
+    msg "          co,conn          Connecting a ssh session(rely on ssh"
     msg " "
     msg "   Options: "
     msg "          <default>,-h     Output usage information"
     msg "          -v               Verbose mode"
-elif [ "$1" == "ls" ] || [ "$1" == "list" ]; then
-    printf "%-8s %-14s %-6s %-5s %-10s %-38s %-15s\n" USER "IP ADDR" PORT WAY PWD UUID NAME
-    awk '{printf "%-8s %-14s %-6s %-5s %-10s %-38s %-15s\n",$4,$2,$3,$5,$6,$1,$7}' $LSSH_CONFIG_HOME/$LSSH_CONFIG_REMOTE_LIST
-elif [ "$1" == "ed" ]; then
+    elif [ "$1" == "ps" ] || [ "$1" == "ls" ] || [ "$1" == "list" ]; then
+    printf "%-8s %-14s %-6s %-5s %-30s %-38s %-15s\n" USER "IP ADDR" PORT WAY PWD UUID NAME
+    awk '{printf "%-8s %-14s %-6s %-5s %-30s %-38s %-15s\n",$4,$2,$3,$5,$6,$1,$7}' $LSSH_CONFIG_HOME/$LSSH_CONFIG_REMOTE_LIST
+    elif [ "$1" == "ed" ]; then
     remote $*
-elif [ "$1" == "rm" ]; then
+    elif [ "$1" == "rm" ]; then
     remote $*
-elif [ "$1" == "cp" ]; then
-    msg "cp"
-elif [ "$1" == "conn" ]; then
-    msg "conn"
-elif [ "$1" == "ad" ]; then
+    elif [ "$1" == "cp" ]; then
+    remote_cb $*
+    elif [ "$1" == "co" ] || [ "$1" == "conn" ]; then
+    remote_cb $*
+    elif [ "$1" == "ad" ]; then
     remote $*
-elif [ "$1" == "-v" ]; then
+    elif [ "$1" == "-v" ]; then
     msg "${SCRIPT_NAME} version: v${SCRIPT_VERSION}"
 else
     msg "$1 is not supported by ${SCRIPT_NAME}."

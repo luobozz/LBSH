@@ -6,6 +6,7 @@ import io
 
 REMOTE_CONFIG_LIST_PATH = ""
 REMOTE_DEL_FLAG = "-_remove"
+REMOTE_CALLBACK_SPLIT_FLAG = ""
 
 
 # class MsgFormat:
@@ -185,6 +186,53 @@ def removeRemote(pArr):
             print(pArr[0], " is not exist.")
 
 
+def cpRemote(pArr):
+    remote = Remote(1)
+    if(len(pArr) < 1 or pArr[0].find('-') >= 0 or len(pArr[1].split(':')) != 2):
+        print("The parameter is not allow, please use uuid/name like 'lssh cp uuid/name source:target'")
+    else:
+        pathArr = pArr[1].split(':')
+        sourcePath = pathArr[0]
+        targetPath = pathArr[1]
+        remote.s_uuid(pArr[0])
+        remote.s_name(pArr[0])
+        findRemote = RemoteConfigListFile.isExistRemote(remote, None)
+        if(findRemote[0]):
+            if(findRemote[1].way == "pk"):
+                cpCmd = "scp -r -P {} -i {} {} {}@{}:{}".format(findRemote[1].port, findRemote[1].password, sourcePath, findRemote[1].user, findRemote[1].ip, targetPath)
+            elif(findRemote[1].way == "pwd"):
+                cpCmd = "sshpass -p {} scp -r -P {} {} {}@{}:{}".format(findRemote[1].password, findRemote[1].port, sourcePath, findRemote[1].user, findRemote[1].ip, targetPath)
+            else:
+                print("uuid={},ip={},port={},user={},way={},password={},name={}) way is not allowed.".format(findRemote[1].uuid, findRemote[1].ip, findRemote[1].port, findRemote[1].user, findRemote[1].way, findRemote[1].password, findRemote[1].name))
+                exit()
+            cpCmd = cpCmd.replace(" ", REMOTE_CALLBACK_SPLIT_FLAG)
+            print("success ", cpCmd)
+        else:
+            print(pArr[0], " is not exist.")
+
+
+def connRemote(pArr):
+    remote = Remote(1)
+    if(len(pArr) < 1 or pArr[0].find('-') >= 0):
+        print("The parameter is not allow, please use uuid/name like 'lssh conn/co uuid/name'")
+    else:
+        remote.s_uuid(pArr[0])
+        remote.s_name(pArr[0])
+        findRemote = RemoteConfigListFile.isExistRemote(remote, None)
+        if(findRemote[0]):
+            if(findRemote[1].way == "pk"):
+                cpCmd = "ssh -i {} {}@{} -p {}".format(findRemote[1].password, findRemote[1].user, findRemote[1].ip, findRemote[1].port)
+            elif(findRemote[1].way == "pwd"):
+                cpCmd = "sshpass -p {} ssh {}@{} -p {}".format(findRemote[1].password, findRemote[1].user, findRemote[1].ip, findRemote[1].port)
+            else:
+                print("uuid={},ip={},port={},user={},way={},password={},name={}) way is not allowed.".format(findRemote[1].uuid, findRemote[1].ip, findRemote[1].port, findRemote[1].user, findRemote[1].way, findRemote[1].password, findRemote[1].name))
+                exit()
+            cpCmd = cpCmd.replace(" ", REMOTE_CALLBACK_SPLIT_FLAG)
+            print("success ", cpCmd)
+        else:
+            print(pArr[0], " is not exist.")
+
+
 def inputParser(str):
     cmdsp = str.split(" ")
     if(len(cmdsp) <= 1):
@@ -196,6 +244,10 @@ def inputParser(str):
         editRemote(cmdsp[1:len(cmdsp)])
     elif(cmdsp[0] == "rm"):
         removeRemote(cmdsp[1:len(cmdsp)])
+    elif(cmdsp[0] == "cp"):
+        cpRemote(cmdsp[1:len(cmdsp)])
+    elif(cmdsp[0] == "conn") or (cmdsp[0] == "co"):
+        connRemote(cmdsp[1:len(cmdsp)])
 
 
 def initProperties(remote: Remote, propertiesArr):
@@ -219,9 +271,11 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='lssh remote config function')
     parser.add_argument('-p', '--params', type=str, help='the params for remote(from sh $*')
     parser.add_argument('-cp', '--configPath', type=str, help='the config path for remote_list.config')
+    parser.add_argument('-cbsp', '--callBackSplit', type=str, help='the spilt char of callback str to spilt result and result status')
     args = parser.parse_args()
     if(args.configPath is None or len(args.configPath) == 0):
         print("remote list config path can't be empty or None")
         exit()
     REMOTE_CONFIG_LIST_PATH = args.configPath
+    REMOTE_CALLBACK_SPLIT_FLAG = args.callBackSplit
     inputParser(args.params)
