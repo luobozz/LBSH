@@ -1,7 +1,7 @@
 #!/bin/bash
 # ssh增强 用于保存会话快速登录
 # 依赖列表
-SCRIPT_VERSION="1.0.4"
+SCRIPT_VERSION="1.0.5"
 SCRIPT_NAME="lb-ssh"
 LBSH_HOME="$HOME/.lbsh"
 LBSH_CONFIG_HOME="$LBSH_HOME/config"
@@ -73,7 +73,7 @@ if [ "$1" == "" ] || [ "$1" == "-h" ]; then
     msg "          ed               Edit a remote in remote list(search with uuid or name likes [lssh ed uuid/name (-n name ...editArgs)]"
     msg "          rm               Remove a remote from remote list(search with uuid or name"
     msg "          cp               Cp locate file to remote(rely on scp"
-    msg "          co,conn          Connecting a ssh session(rely on ssh"
+    msg "          cn,conn          Connecting a ssh session(rely on ssh"
     msg " "
     msg "   Options: "
     msg "          <default>,-h     Output usage information"
@@ -87,7 +87,7 @@ if [ "$1" == "" ] || [ "$1" == "-h" ]; then
     remote $*
     elif [ "$1" == "cp" ]; then
     remote_cb $*
-    elif [ "$1" == "co" ] || [ "$1" == "conn" ]; then
+    elif [ "$1" == "cn" ] || [ "$1" == "conn" ]; then
     remote_cb $*
     elif [ "$1" == "ad" ]; then
     remote $*

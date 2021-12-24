@@ -246,7 +246,7 @@ def inputParser(str):
         removeRemote(cmdsp[1:len(cmdsp)])
     elif(cmdsp[0] == "cp"):
         cpRemote(cmdsp[1:len(cmdsp)])
-    elif(cmdsp[0] == "conn") or (cmdsp[0] == "co"):
+    elif(cmdsp[0] == "conn") or (cmdsp[0] == "cn"):
         connRemote(cmdsp[1:len(cmdsp)])
 
 
