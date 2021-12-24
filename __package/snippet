@@ -94,7 +94,7 @@ function readForTimes(){
             read -p "$1" inputArg
             case $inputArg in
                 [yY]*)
-                let times=0
+                    let times=0
                 ;;
                 [nN]*)
                     exit
@@ -136,7 +136,7 @@ function bannerColor() {
         *) echo "color is not set"; exit 1
         ;;
     esac
-
+    
     local msg="${3} ${1} ${3}"
     local edge
     edge=${msg//?/$3}
@@ -162,4 +162,24 @@ function getContinuousRepeat(){
     fi
     re=$(seq -s "$seg" "$1"|sed "s/[0-9]//g")
     echo $re
+}
+
+# 检查某个命令是否存在
+function checkCmdIsExist(){
+    if [ $1 != "" ]; then
+        if [ -f "$1" ]; then
+            echo 1
+        else
+            echo 0
+        fi
+    fi
+    if [ -f "$1" ]; then
+        echo 1
+    else
+        echo 0
+    fi
+}
+command -v foo >/dev/null 2>&1 || { 
+    echo >&2 "I require foo but it's not installed.  Aborting.";
+    exit 1; 
 }
