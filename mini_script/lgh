@@ -1,6 +1,6 @@
 #!/bin/bash
 a=$*
-a=`echo ${a/raw.githubusercontent.com/raw.staticdn.net}`
-a=`echo ${a/github.com/github.com.cnpmjs.org}`
+a=`echo ${a/https\:\/\/raw.githubusercontent.com/https\:\/\/raw.staticdn.net}`
+a=`echo ${a/https\:\/\/github.com/https\:\/\/github.com.cnpmjs.org}`
 echo ${a}
 `$a`

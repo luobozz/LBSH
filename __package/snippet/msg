@@ -1,0 +1,68 @@
+#/bin/bash
+function msg() {
+    if [ "$1" == "log" ]; then
+        if [ "$2" == "error" ]; then
+            echo -e "[${SCRIPT_NAME}] $(date '+%Y-%m-%d %H:%M:%S') \e[31mERROR\e[0m: $3" 1>&2
+        else
+            echo "[${SCRIPT_NAME}] $(date '+%Y-%m-%d %H:%M:%S')  INFO: $2"
+        fi
+    else
+        if [ "$1" == "error" ]; then
+            echo -e "\e[31mERROR:\e[0m $2"
+        else
+            echo "$*"
+        fi
+    fi
+}
+
+function load_print() {
+  load_array=("⠇" "⠋" "⠙" "⠸" "⠴" "⠦")
+  load_index=$1
+  let array_index=load_index%${#load_array[*]}
+  printf "\r\033[?25l\033[32m${load_array[$array_index]}\033[0m %s" "$2"
+}
+
+function load_success(){
+  # 判断终端宽度
+  sp=$(stty size|awk '{print $2}')
+  # 判断输出宽度
+  out_len=`echo ${2}|wc -L`
+  # 计算所需填充量
+  let sp=sp-out_len-3
+  printf "\r\033[?25l\033[32m√\033[0m %s%-${sp}s\33[?25h\n" "$2"
+}
+
+# banner
+function bannerColor() {
+    case ${2} in
+        black) color=0
+        ;;
+        red) color=1
+        ;;
+        green) color=2
+        ;;
+        yellow) color=3
+        ;;
+        blue) color=4
+        ;;
+        magenta) color=5
+        ;;
+        cyan) color=6
+        ;;
+        white) color=7
+        ;;
+        *) echo "color is not set"; exit 1
+        ;;
+    esac
+    
+    local msg="${3} ${1} ${3}"
+    local edge
+    edge=${msg//?/$3}
+    tput setaf ${color}
+    tput bold
+    echo "${edge}"
+    echo "${msg}"
+    echo "${edge}"
+    tput sgr 0
+    echo
+}
