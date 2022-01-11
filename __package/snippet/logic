@@ -1,4 +1,3 @@
-
 # 判断数组内是否存在 0/F 1/T
 # arr=(1 2 3 4)
 # target1=4
@@ -12,38 +11,28 @@ function isContains() {
 }
 
 # 获得一个uuid
-function getUuid(){
-    uuid=`uuidgen`
+function getUuid() {
+    uuid=$(uuidgen)
     echo ${uuid//-/}
 }
 
-function getContinuousRepeat(){
+function getContinuousRepeat() {
     seg=" "
     if [ "$2" != "" ]; then
         seg="$2"
     fi
-    re=$(seq -s "$seg" "$1"|sed "s/[0-9]//g")
+    re=$(seq -s "$seg" "$1" | sed "s/[0-9]//g")
     echo $re
 }
 
 # 检查某个命令是否存在
-function checkCmdIsExist(){
-    if [ $1 != "" ]; then
-        if [ -f "$1" ]; then
-            echo 1
-        else
-            echo 0
-        fi
-    fi
-    if [ -f "$1" ]; then
-        echo 1
+function checkCmdIsExist() {
+    exist=$(command -v $1)
+    if [ -n "${exist}" ]; then
+        return 0
     else
-        echo 0
+        return 1
     fi
-}
-command -v foo >/dev/null 2>&1 || { 
-    echo >&2 "I require foo but it's not installed.  Aborting.";
-    exit 1; 
 }
 
 # 判断是否运行

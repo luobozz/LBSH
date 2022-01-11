@@ -32,6 +32,17 @@ function load_success(){
   printf "\r\033[?25l\033[32m√\033[0m %s%-${sp}s\33[?25h\n" "$2"
 }
 
+
+function load_error(){
+  # 判断终端宽度
+  sp=$(stty size|awk '{print $2}')
+  # 判断输出宽度
+  out_len=`echo ${2}|wc -L`
+  # 计算所需填充量
+  let sp=sp-out_len-3
+  printf "\r\033[?25l\033[31m×\033[0m %s%-${sp}s\33[?25h\n" "$2"
+}
+
 # banner
 function bannerColor() {
     case ${2} in

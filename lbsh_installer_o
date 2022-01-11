@@ -25,30 +25,82 @@ function banner() {
     cecho red ""
 }
 
+function title() {
+    echo ""
+    echo -e "\033[1m${1}:\033[0m"
+    echo ""
+}
+
+function load_print() {
+    load_array=("⠇" "⠋" "⠙" "⠸" "⠴" "⠦")
+    load_index=$1
+    let array_index=load_index%${#load_array[*]}
+    printf "\r\033[?25l\033[32m${load_array[$array_index]}\033[0m %s" "$2"
+}
+
+function load_success() {
+    # 判断终端宽度
+    sp=$(stty size | awk '{print $1}')
+    # 判断输出宽度
+    out_len=$(echo ${1} | wc -L)
+    # 计算所需填充量
+    let sp=sp-out_len-3
+    printf "\r\033[?25l\033[32m√\033[0m %s%-${sp}s\33[?25h\n" "$1"
+}
+
+function load_error() {
+    # 判断终端宽度
+    sp=$(stty size | awk '{print $1}')
+    # 判断输出宽度
+    out_len=$(echo ${1} | wc -L)
+    # 计算所需填充量
+    let sp=sp-out_len-3
+    printf "\r\033[?25l\033[31m×\033[0m %s%-${sp}s\33[?25h\n" "$1"
+}
+
 function pause() {
-  sed -n q </dev/tty
+    sed -n q </dev/tty
 }
 
-function cmd_exist_or_exist(){
-    command -v foo >/dev/null 2>&1 || { 
-    echo >&2 "I require foo but it's not installed.  Aborting.";
-    exit 1; 
+function checkCmdIsExist() {
+    exist=$(command -v $1)
+    if [ -n "${exist}" ]; then
+        return 0
+    else
+        return 1
+    fi
 }
-}
-
 
 function welcome() {
-    clear
     banner
+    echo "Welcome to the intaller for lbsh!"
 }
 
-function env_check(){
+function env_check() {
+    title "Installation Environment Check"
+    cmd_env_array=("node" "foo" "wls")
+    error_env=""
+    for cmd_env in ${cmd_env_array[@]}; do
+        if checkCmdIsExist ${cmd_env}; then
+            load_success "${cmd_env}"
+        else
+            load_error "${cmd_env}"
+            error_env="${error_env} ${cmd_env}"
+        fi
+    done
+
+    if [ -n "$error_env" ]; then
+        echo ""
+        echo "[$error_env ] loss."
+    fi
 
 }
 
 function main() {
+    clear
     welcome
     env_check
+    pause
 }
 
 main

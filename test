@@ -1,9 +1,21 @@
 #!/bin/bash
 
-
 function exss() {
   exist=$(command -v $1)
-  [ -n "$exist" ] && return echo 
+  if [ -n "${exist}" ]; then
+    return 0
+  else
+    return 1
+  fi
 }
-exss ifconfig
-exss foo
+# a=$(exss ifconfig)
+# echo ${a}
+if exss ifconfig; then
+  echo success
+fi
+
+if exss fpoo; then
+  echo success
+else
+  echo error
+fi
