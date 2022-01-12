@@ -2,32 +2,39 @@
 # 输入判断用户确认
 # $1 read tips
 # $2 retry times default for 3
-function readForTimes(){
+function readForTimes() {
     times=3
     if [ "$1" != "" ]; then
         if [ "$2" != "" ]; then
             let times=$2
         fi
         while [ $times -gt 0 ]; do
-            read -p "$1" inputArg
+            read -p "${1}[yY/nN]: " -N 1 rc
+            inputArg=$rc
+            # 输入是回车则format成Y
+            if [[ $rc == $'\x0a' ]]; then
+                inputArg="y"
+            else
+                echo
+            fi
             case $inputArg in
-                [yY]*)
-                    let times=0
+            [yY]*)
+                let times=0
                 ;;
-                [nN]*)
+            [nN]*)
+                echo
+                exit 1
+                ;;
+            *)
+                if [ $times -eq 1 ]; then
+                    cecho red "run out of retry, exit."
                     exit
-                ;;
-                *)
-                    if [ $times -eq 1 ]; then
-                        msg "run out of retry, exit."
-                        exit
-                    else
-                        let times--
-                        msg "just enter y or n, please enter again, $times more times retry."
-                    fi
+                else
+                    let times--
+                    cecho red "just enter y or n, please enter again, $times more times retry."
+                fi
                 ;;
             esac
         done
     fi
 }
-

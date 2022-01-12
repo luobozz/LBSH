@@ -1,0 +1,187 @@
+#!/bin/bash
+# TODO 重新梳理安装目录
+#命令安装器
+SCRIPT_VERSION="2.0.0"
+SCRIPT_NAME="lbsh_installer"
+BANNER_COLOR="blue"
+LBSH_HOME="$HOME/.lbsh"
+LBSH_CONFIG_HOME="$LBSH_HOME/config"
+LBSH_LIB_HOME="$LBSH_HOME/lib"
+LBSH_CACHE_HOME="$LBSH_HOME/cache"
+LBSH_LOG_HOME="$LBSH_HOME/log"
+
+INSTALL_SUPPORT_ARR=("lssh" "tester")
+INSTALL_TO_BIN_HOME="/usr/bin"
+
+LSSH_INSTALL_HOME="./lssh"
+LSSH_LIB_HOME="$LBSH_LIB_HOME/lssh"
+LSSH_INSTALL_LIB_HOME="$LSSH_INSTALL_HOME/lib"
+LSSH_INSTALL_LIB_ARR=("remote.py")
+LSSH_CONFIG_HOME="$LBSH_CONFIG_HOME/lssh"
+LSSH_CONFIG_REMOTE_LIST="remote_list.config"
+LSSH_SHELL="lssh"
+
+# 消息输出统一
+function msg() {
+    if [ "$1" == "log" ]; then
+        if [ "$2" == "error" ]; then
+            echo -e "[${SCRIPT_NAME}] $(date '+%Y-%m-%d %H:%M:%S') \e[31mERROR\e[0m: $3" 1>&2
+        else
+            echo -e "[${SCRIPT_NAME}] $(date '+%Y-%m-%d %H:%M:%S')  INFO: $2"
+        fi
+    else
+        if [ "$1" == "error" ]; then
+            echo -e "\e[31mERROR:\e[0m $2"
+        else
+            echo -e "$*"
+        fi
+    fi
+}
+
+function bannerColor() {
+    case ${2} in
+        black) color=0
+        ;;
+        red) color=1
+        ;;
+        green) color=2
+        ;;
+        yellow) color=3
+        ;;
+        blue) color=4
+        ;;
+        magenta) color=5
+        ;;
+        cyan) color=6
+        ;;
+        white) color=7
+        ;;
+        *) echo "color is not set"; exit 1
+        ;;
+    esac
+
+    local msg="${3} ${1} ${3}"
+    local edge
+    edge=${msg//?/$3}
+    tput setaf ${color}
+    tput bold
+    msg
+    msg "${edge}"
+    msg "${msg}"
+    msg "${edge}"
+    tput sgr 0
+    msg
+}
+
+function mkIfNotExistDir() {
+    if [ $1 != "" ]; then
+        if [ ! -d "$1" ]; then
+            if [ "$2" == "print" ]; then
+                msg "$1 is not exist,creating now."
+            fi
+            mkdir $1
+        else
+            if [ "$2" == "print" ]; then
+                msg "$1 is already exist."
+            fi
+        fi
+    fi
+}
+
+function tcIfNotExistDir() {
+    if [ $1 != "" ]; then
+        if [ ! -f "$1" ]; then
+            if [ "$2" == "print" ]; then
+                msg "$1 is not exist,creating now."
+            fi
+            touch $1
+        else
+            if [ "$2" == "print" ]; then
+                msg "$1 is already exist."
+            fi
+        fi
+    fi
+}
+
+function readForTimes(){
+    times=3
+    if [ "$1" != "" ]; then
+        if [ "$2" != "" ]; then
+            let times=$2
+        fi
+        while [ $times -gt 0 ]; do
+            read -p "$1" inputArg
+            case $inputArg in
+                [yY]*)
+                let times=0
+                ;;
+                [nN]*)
+                    lbshBanne quit
+                    exit
+                ;;
+                *)
+                    if [ $times -eq 1 ]; then
+                        msg "run out of retry, exit."
+                        lbshBanne quit
+                        exit
+                    else
+                        let times--
+                        msg "just enter y or n, please enter again, $times more times retry."
+                    fi
+                ;;
+            esac
+        done
+    fi
+}
+
+function lbshBanne(){
+    if [ "$1" == "welcome" ]; then
+        bannerColor "welcome to $SCRIPT_NAME(v$SCRIPT_VERSION)!" $BANNER_COLOR "*"         
+    elif [ "$1" == "quit" ]; then
+        bannerColor "thanks for using $SCRIPT_NAME(v$SCRIPT_VERSION)." $BANNER_COLOR "*" 
+    fi    
+}
+
+function lbshHomeCheck() {
+    msg ">>check for lbshHome($LBSH_HOME)"
+    mkIfNotExistDir $LBSH_HOME print
+    mkIfNotExistDir $LBSH_CONFIG_HOME print
+    mkIfNotExistDir $LBSH_LIB_HOME print
+    mkIfNotExistDir $LBSH_CACHE_HOME print
+    mkIfNotExistDir $LBSH_LOG_HOME print
+    msg "\n"
+}
+
+function installerForLssh() {
+   msg "lssh"
+}
+
+if [ "$1" == "" ] || [ "$1" == "-h" ]; then
+    msg "   Usage: $0 [options] [command]"
+    msg " "
+    msg "   Commands: "
+    msg "          ps,ls,list       Check luobo tools list"
+    msg "          i,install        Install luobo tools in your system"
+    msg "          u,unstall        Unstall luobo tools"
+    msg "          clear            Clear lbsh home"
+    msg " "
+    msg "   Options: "
+    msg "          <default>,-h     Output usage information"
+    msg "          -v               Verbose mode"
+elif [ "$1" == "ps" ] || [ "$1" == "ls" ] || [ "$1" == "list" ]; then
+    
+elif [ "$1" == "i" ]; then
+    lbshBanne welcome
+    if [ "$2" == "" ]; then
+        msg "Unable to install empty, plase try to install [${INSTALL_SUPPORT_ARR[*]}]."
+    elif [ "$2" == "lssh" ]; then
+        installerForLssh
+    else
+        msg "$2 is not supported for installation, plase try to install [${INSTALL_SUPPORT_ARR[*]}]."
+    fi
+    lbshBanne quit
+elif [ "$1" == "-v" ]; then
+    msg "${SCRIPT_NAME} version: v${SCRIPT_VERSION}"
+else
+    msg "$1 is not supported by ${SCRIPT_NAME}."
+fi

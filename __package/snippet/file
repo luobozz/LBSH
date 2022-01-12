@@ -1,4 +1,6 @@
 
+# 是否存在文件夹
+
 # 是否存在文件夹否则创建
 function mkIfNotExistDir() {
     if [ $1 != "" ]; then

@@ -1,0 +1,257 @@
+#!/bin/bash
+VERSION="3.0.0"
+# 交互方式
+# 1 非交互式 passive
+# 2 交互式 interactive
+INTERVIEW_MODE=1
+
+# tools
+# 以下都是工具方法
+function cecho() {
+    if [ "$1" == "red" ]; then
+        echo -e "\033[31m$2\033[0m"
+    elif [ "$1" == "yellow" ]; then
+        echo -e "\033[33m$2\033[0m"
+    elif [ "$1" == "green" ]; then
+        echo -e "\033[32m$2\033[0m"
+    fi
+}
+
+function banner() {
+    cecho red ""
+    cecho red ""
+    cecho red " ██▓     █    ██  ▒█████   ▄▄▄▄    ▒█████       ██████  ██░ ██ ▓█████  ██▓     ██▓    "
+    cecho red "▓██▒     ██  ▓██▒▒██▒  ██▒▓█████▄ ▒██▒  ██▒   ▒██    ▒ ▓██░ ██▒▓█   ▀ ▓██▒    ▓██▒    "
+    cecho red "▒██░    ▓██  ▒██░▒██░  ██▒▒██▒ ▄██▒██░  ██▒   ░ ▓██▄   ▒██▀▀██░▒███   ▒██░    ▒██░    "
+    cecho red "▒██░    ▓▓█  ░██░▒██   ██░▒██░█▀  ▒██   ██░     ▒   ██▒░▓█ ░██ ▒▓█  ▄ ▒██░    ▒██░    "
+    cecho red "░██████▒▒▒█████▓ ░ ████▓▒░░▓█  ▀█▓░ ████▓▒░   ▒██████▒▒░▓█▒░██▓░▒████▒░██████▒░██████▒"
+    cecho red "░ ▒░▓  ░░▒▓▒ ▒ ▒ ░ ▒░▒░▒░ ░▒▓███▀▒░ ▒░▒░▒░    ▒ ▒▓▒ ▒ ░ ▒ ░░▒░▒░░ ▒░ ░░ ▒░▓  ░░ ▒░▓  ░"
+    cecho red "░ ░ ▒  ░░░▒░ ░ ░   ░ ▒ ▒░ ▒░▒   ░   ░ ▒ ▒░    ░ ░▒  ░ ░ ▒ ░▒░ ░ ░ ░  ░░ ░ ▒  ░░ ░ ▒  ░"
+    cecho red "  ░ ░    ░░░ ░ ░ ░ ░ ░ ▒   ░    ░ ░ ░ ░ ▒     ░  ░  ░   ░  ░░ ░   ░     ░ ░     ░ ░   "
+    cecho red "    ░  ░   ░         ░ ░   ░          ░ ░           ░   ░  ░  ░   ░  ░    ░  ░    ░  ░"
+    cecho red "                                ░                                                     "
+    cecho red ""
+}
+
+function title() {
+    if [[ "${1}" == "npd" ]]; then
+        echo -e "\033[1m${2}\033[0m"
+    else
+        echo
+        echo
+        echo -e "\033[1m${1}\033[0m"
+        echo
+    fi
+}
+
+function load_print() {
+    load_array=("⠇" "⠋" "⠙" "⠸" "⠴" "⠦")
+    load_index=$1
+    let array_index=load_index%${#load_array[*]}
+    printf "\r\033[?25l\033[32m${load_array[$array_index]}\033[0m %s" "$2"
+}
+
+function load_success() {
+    # 判断终端宽度
+    sp=$(stty size | awk '{print $1}')
+    # 判断输出宽度
+    out_len=$(echo ${1} | wc -L)
+    # 计算所需填充量
+    let sp=sp-out_len-3
+    printf "\r\033[?25l\033[32m√\033[0m %s%-${sp}s\33[?25h\n" "$1"
+}
+
+function load_error() {
+    # 判断终端宽度
+    sp=$(stty size | awk '{print $1}')
+    # 判断输出宽度
+    out_len=$(echo ${1} | wc -L)
+    # 计算所需填充量
+    let sp=sp-out_len-3
+    printf "\r\033[?25l\033[31mx\033[0m %s%-${sp}s\33[?25h\n" "$1"
+}
+
+function pause() {
+    # 非交互模式直接退出
+    # TODO 为了输出一个\n(为了好看:( )多执行了一个判断  挂个todo学习后再来看看有没有别的解决方案
+    [ ${INTERVIEW_MODE} == 2 ] || echo && [ ${INTERVIEW_MODE} == 2 ] || exit 1
+    echo
+    if [ "${1}" == "exit" ]; then
+        echo "Installer be terminated, press any to exit..."
+        sed -n q </dev/tty
+        exit 1
+    else
+        echo "Press enter to continue...(Ctrl+C to exit)"
+        sed -n q </dev/tty
+    fi
+}
+
+function checkCmdIsExist() {
+    exist=$(command -v $1)
+    if [ -n "${exist}" ]; then
+        return 0
+    else
+        return 1
+    fi
+}
+
+# 输入判断用户确认
+# $1 read tips
+# $2 retry times default for 3
+function readForTimes() {
+    times=3
+    if [ "$1" != "" ]; then
+        if [ "$2" != "" ]; then
+            let times=$2
+        fi
+        while [ $times -gt 0 ]; do
+            read -p "${1}[yY/nN]: " -N 1 rc
+            inputArg=$rc
+            # 输入是回车则format成Y
+            if [[ $rc == $'\x0a' ]]; then
+                inputArg="y"
+            else
+                echo
+            fi
+            case $inputArg in
+            [yY]*)
+                let times=0
+                ;;
+            [nN]*)
+                echo
+                exit 1
+                ;;
+            *)
+                if [ $times -eq 1 ]; then
+                    cecho red "run out of retry, exit."
+                    exit
+                else
+                    let times--
+                    cecho red "just enter y or n, please enter again, $times more times retry."
+                fi
+                ;;
+            esac
+        done
+    fi
+}
+
+# logic
+# 以下都是安装器逻辑层面方法
+function welcome() {
+    banner
+    title npd "Welcome to the intaller for lbsh! (${VERSION})"
+}
+# 安装器本身需要的环境检查安装
+function env_check() {
+    env_cmd_check
+    env_dir_check
+    env_script_check
+}
+# 检查所需系统命令环境，不存在则退出
+function env_cmd_check() {
+    cmd_array=("node")
+    if ((${#cmd_array[*]} > 0)); then
+        title "Installation Commands Environment Check:"
+        error_env=""
+        for cmd_env in ${cmd_array[@]}; do
+            if checkCmdIsExist ${cmd_env}; then
+                load_success "${cmd_env}"
+            else
+                load_error "${cmd_env}"
+                error_env="${error_env}${cmd_env} "
+            fi
+        done
+        echo
+        # 环境缺失
+        if [ -n "$error_env" ]; then
+            cecho red "Required environment was not found...(${error_env})"
+            pause exit
+        fi
+        # 环境完整
+        cecho green "Congratulations!!You have everything installer need!!"
+    fi
+}
+# 检查自身目录，不存在则提示创建
+function env_dir_check() {
+    dir_array=("${HOME}/.lbsh" "${HOME}/.lbsh/bin" "${HOME}/.lbsh/lib")
+    if ((${#dir_array[*]} > 0)); then
+        title "Installation Home Check:"
+        for dir in ${dir_array[@]}; do
+            if [ -d $dir ]; then
+                load_success "${dir}"
+            else
+                load_error "${dir}"
+                readForTimes "Required folder(${dir}) does not exist,Confirm to create"
+                mkdir -p ${dir}
+                load_success "${dir} comfirm create"
+            fi
+        done
+    fi
+}
+# 检查所需脚本，不存在则提示下载
+# 暂行 安装的所有脚本必须版本跟安装脚本同步
+# TODO 后续更新更新检查方案来分别指定最高版本
+function env_script_check() {
+    script_array=("/etc/profile.d/lb_env.sh" "/mnt/e/code/gitCode/luobo/my_shell/lb_installer/test")
+    if ((${#script_array[*]} > 0)); then
+        title "Installation Script Check:"
+        for script in ${script_array[@]}; do
+            version=$(${script} -v)
+            echo $version
+            echo $VERSION
+            if [[ "${version}" == *"${VERSION}"* ]]; then
+                echo "${version} contains: ${VERSION}"
+            fi
+
+        done
+    fi
+}
+
+# 非交互式安装模式检查，检查到合法条件则不进入交互窗口
+function check_passive_mode() {
+    if [ "$1" == "-h" ]; then
+        welcome
+        echo
+        echo "Usage: $0 [options] [command] to passive mode or "
+        echo "       $0 to interactive mode"
+        echo
+        echo "Commands: "
+        echo "       ps,ls,list       Check luobo tools list"
+        echo "       i,install        Install luobo tools in your system"
+        echo "       u,unstall        Unstall luobo tools"
+        echo "       clear            Clear lbsh home"
+        echo
+        echo "Options: "
+        echo "       -h,-help         Output usage information"
+        echo "       -v               Verbose mode"
+        echo
+        return 0
+    elif [ "$1" == "ps" ] || [ "$1" == "ls" ] || [ "$1" == "list" ]; then
+        echo ls
+        return 0
+    elif [ "$1" == "i" ] || [ "$1" == "install" ]; then
+        welcome
+        env_check
+        echo "install $2"
+        return 0
+    elif [ "$1" == "-v" ]; then
+        echo "${VERSION}"
+        return 0
+    else
+        return 1
+    fi
+}
+
+function main() {
+    if check_passive_mode $*; then
+        exit 1
+    else
+        let INTERVIEW_MODE=2
+        clear
+        welcome
+        env_check
+        pause
+    fi
+}
+
+main $*
