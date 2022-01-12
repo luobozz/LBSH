@@ -171,7 +171,7 @@ function env_cmd_check() {
         cecho green "Congratulations!!You have everything installer need!!"
     fi
 }
-# 检查自身目录，不存在则提示创建
+# 检查本地已安装环境目录，不存在则提示创建
 function env_dir_check() {
     dir_array=("${HOME}/.lbsh" "${HOME}/.lbsh/bin" "${HOME}/.lbsh/lib")
     if ((${#dir_array[*]} > 0)); then
@@ -193,7 +193,9 @@ function env_dir_check() {
 # TODO 后续更新更新检查方案来分别指定最高版本
 function env_script_check() {
     script_array=("/etc/profile.d/lb_env.sh")
-    script_source=("")
+    script_upgrade_array=(
+        "sudo cp -f ./libs/lb_env.sh ${script_array[0]}"
+    )
     if ((${#script_array[*]} > 0)); then
         title "Installation Script Check:"
         for ((i = 0; i < ${#script_array[*]}; i++)); do
@@ -203,11 +205,16 @@ function env_script_check() {
             if [[ "${version}" == *"${VERSION}"* ]]; then
                 load_success "${script}(${version})"
             else
-                for ((i = 0; i < n; i++)); do
-                    echo "${i}"
-                done
-
                 load_error "${script}(${version})"
+                readForTimes "Required script(${script}) does not exist,Confirm to upgrade"
+                script_upgrade=${script_upgrade_array[$i]}
+                ${script_upgrade}
+                if [ $? -eq 0 ]; then
+                    # version=$(${script} -v 2>/dev/null)
+                    load_success "${script} upgrade success ($(${script} -v 2>/dev/null))"
+                else
+                    load_error "${script}(${version}) upgrade error"
+                fi
             fi
         done
     fi
