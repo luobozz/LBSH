@@ -1,0 +1,1 @@
+export LBSH_HOME="$HOME/.lbsh"

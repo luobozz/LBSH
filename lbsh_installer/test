@@ -1,2 +1,6 @@
 #!/bin/bash
-echo 3.0.0
+ips=("11" "22")
+i=0
+for((i=0;i<${#ips[*]};i++)); do
+    echo ${ips[$i]}
+done

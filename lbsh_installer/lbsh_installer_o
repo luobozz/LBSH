@@ -192,17 +192,23 @@ function env_dir_check() {
 # 暂行 安装的所有脚本必须版本跟安装脚本同步
 # TODO 后续更新更新检查方案来分别指定最高版本
 function env_script_check() {
-    script_array=("/etc/profile.d/lb_env.sh" "/mnt/e/code/gitCode/luobo/my_shell/lb_installer/test")
+    script_array=("/etc/profile.d/lb_env.sh")
+    script_source=("")
     if ((${#script_array[*]} > 0)); then
         title "Installation Script Check:"
-        for script in ${script_array[@]}; do
-            version=$(${script} -v)
-            echo $version
-            echo $VERSION
+        for ((i = 0; i < ${#script_array[*]}; i++)); do
+            script=${script_array[$i]}
+            version=$(${script} -v 2>/dev/null)
+            # 版本号包含母版本
             if [[ "${version}" == *"${VERSION}"* ]]; then
-                echo "${version} contains: ${VERSION}"
-            fi
+                load_success "${script}(${version})"
+            else
+                for ((i = 0; i < n; i++)); do
+                    echo "${i}"
+                done
 
+                load_error "${script}(${version})"
+            fi
         done
     fi
 }
