@@ -153,6 +153,8 @@ function env_check() {
     env_dir_check
     env_script_check
     env_variable_check
+    echo
+    cecho green "Environment check finish, Your environment is intact..."
 }
 # 检查所需系统命令环境，不存在则退出
 function env_cmd_check() {
@@ -206,6 +208,9 @@ function env_script_check() {
     script_upgrade_init_array=(
         "source ${script_array[0]}"
     )
+    script_upgrade_tips_array=(
+        "environment file has been change, please add lb_profile($HOME/.lbsh/.lbsh_profile) into your environment(suggestion: [ ! -f \"$HOME/.lbsh/.lbsh_profile\" ] || source $HOME/.lbsh/.lbsh_profile) and resource"
+    )
     if ((${#script_array[*]} > 0)); then
         title "Installation Script Check:"
         for ((i = 0; i < ${#script_array[*]}; i++)); do
@@ -224,11 +229,10 @@ function env_script_check() {
                 # 判断更新安装脚本执行结果
                 if [ $? -eq 0 ]; then
                     # 检查是否有更新后初始化选项脚本，有就执行
-                    script_upgrade_init=${script_upgrade_init_array[$i]}
-                    if [[ -n "${script_upgrade_init}" ]]; then
-                        ${script_upgrade_init}
-                    fi
+                    script_upgrade_init=
+                    [[ ! -n "${script_upgrade_init_array[$i]}" ]] || ${script_upgrade_init}
                     load_success "${script} upgrade success ($(${script} -v 2>/dev/null))"
+                    [[ ! -n "${script_upgrade_tips_array[$i]}" ]] || FINISH_TIPS[${#FINISH_TIPS[*]}]="${script_upgrade_tips_array[$i]}"
                 else
                     cecho red "${script}(${version}) upgrade error"
                     pause exit
@@ -240,15 +244,28 @@ function env_script_check() {
 
 # 环境变量检查，静默检查安装完成后提示安装环境变量
 function env_variable_check() {
-    var_array=("LBSH_HOME" "LBSH_HOME2")
+    var_array=("LBSH_HOME")
     if ((${#var_array[*]} > 0)); then
         var_error=()
         for var in ${var_array[@]}; do
             var_content=$(eval echo '$'${var})
             [[ -n "${var_content}" ]] || var_error[${#var_error[*]}]=${var}
         done
-        ((${#var_error[*]} <= 0)) || FINISH_TIPS[${#FINISH_TIPS[*]}]="lbsh environment variable missing...(${var_error}), please add lb_profile($HOME/.lbsh/.lbsh_profile) into your environment(suggestion: [ ! -f \"$HOME/.lbsh/.lbsh_profile\" ] || source $HOME/.lbsh/.lbsh_profile)"
+        ((${#var_error[*]} <= 0)) || FINISH_TIPS[${#FINISH_TIPS[*]}]="lbsh environment variable missing, please check your environment file or resource your environment...(missing items: ${var_error})"
     fi
+}
+
+# 交互式的支持的命令菜单选择
+function lbsh_list() {
+    title "Luobo Shell List:"
+
+    while read -p "choose one(default): " -N 1 rc; do
+        case $inputArg in
+        [yY]*)
+            let times=0
+            ;;
+        esac
+    done
 }
 
 # 安装结束
@@ -307,17 +324,15 @@ function check_passive_mode() {
 }
 
 function main() {
-    if check_passive_mode $*; then
-        exit 1
-    else
+    check_passive_mode $* && exit 1 || {
         let INTERVIEW_MODE=2
         clear
         welcome
         env_check
-
+        lbsh_list
         install_finsh
         pause finish
-    fi
+    }
 }
 
 main $*

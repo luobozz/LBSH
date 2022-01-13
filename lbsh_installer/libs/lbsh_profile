@@ -4,5 +4,5 @@ VERSION=2.0.1
 if [[ "$1" == "-v" ]]; then
     echo $VERSION
 else
-    export LBSH_HOME="$HOME/.lbsh123a"
+    export LBSH_HOME="$HOME/.lbsh"
 fi
