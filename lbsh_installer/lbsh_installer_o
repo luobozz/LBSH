@@ -4,6 +4,7 @@ VERSION="3.0.0"
 # 1 非交互式 passive
 # 2 交互式 interactive
 INTERVIEW_MODE=1
+FINISH_TIPS=()
 
 # tools
 # 以下都是工具方法
@@ -77,9 +78,14 @@ function pause() {
     [ ${INTERVIEW_MODE} == 2 ] || echo && [ ${INTERVIEW_MODE} == 2 ] || exit 1
     echo
     if [ "${1}" == "exit" ]; then
-        echo "Installer be terminated, press any to exit..."
+        echo "Installer has been terminated, press any to exit..."
         sed -n q </dev/tty
         exit 1
+    elif [ "$1" == "finish" ]; then
+        echo "Installer has been completed, press any to exit..."
+        sed -n q </dev/tty
+        exit 1
+
     else
         echo "Press enter to continue...(Ctrl+C to exit)"
         sed -n q </dev/tty
@@ -146,6 +152,7 @@ function env_check() {
     env_cmd_check
     env_dir_check
     env_script_check
+    env_variable_check
 }
 # 检查所需系统命令环境，不存在则退出
 function env_cmd_check() {
@@ -188,13 +195,16 @@ function env_dir_check() {
         done
     fi
 }
-# 检查所需脚本，不存在则提示下载
+# 检查所需脚本，不存在则提示下载，错误则退出
 # 暂行 安装的所有脚本必须版本跟安装脚本同步
 # TODO 后续更新更新检查方案来分别指定最高版本
 function env_script_check() {
-    script_array=("/etc/profile.d/lb_env.sh")
+    script_array=("/home/luobo/.lbsh/.lbsh_profile")
     script_upgrade_array=(
-        "sudo cp -f ./libs/lb_env.sh ${script_array[0]}"
+        "cp -f ./libs/lbsh_profile ${script_array[0]}"
+    )
+    script_upgrade_init_array=(
+        "source ${script_array[0]}"
     )
     if ((${#script_array[*]} > 0)); then
         title "Installation Script Check:"
@@ -205,18 +215,59 @@ function env_script_check() {
             if [[ "${version}" == *"${VERSION}"* ]]; then
                 load_success "${script}(${version})"
             else
+                # 需求脚本不存在
                 load_error "${script}(${version})"
                 readForTimes "Required script(${script}) does not exist,Confirm to upgrade"
+                # 执行更新安装脚本
                 script_upgrade=${script_upgrade_array[$i]}
                 ${script_upgrade}
+                # 判断更新安装脚本执行结果
                 if [ $? -eq 0 ]; then
-                    # version=$(${script} -v 2>/dev/null)
+                    # 检查是否有更新后初始化选项脚本，有就执行
+                    script_upgrade_init=${script_upgrade_init_array[$i]}
+                    if [[ -n "${script_upgrade_init}" ]]; then
+                        ${script_upgrade_init}
+                    fi
                     load_success "${script} upgrade success ($(${script} -v 2>/dev/null))"
                 else
-                    load_error "${script}(${version}) upgrade error"
+                    cecho red "${script}(${version}) upgrade error"
+                    pause exit
                 fi
             fi
         done
+    fi
+}
+
+# 环境变量检查，静默检查安装完成后提示安装环境变量
+function env_variable_check() {
+    var_array=("LBSH_HOME" "LBSH_HOME2")
+    if ((${#var_array[*]} > 0)); then
+        var_error=()
+        for var in ${var_array[@]}; do
+            var_content=$(eval echo '$'${var})
+            [[ -n "${var_content}" ]] || var_error[${#var_error[*]}]=${var}
+        done
+        ((${#var_error[*]} <= 0)) || FINISH_TIPS[${#FINISH_TIPS[*]}]="lbsh environment variable missing...(${var_error}), please add lb_profile($HOME/.lbsh/.lbsh_profile) into your environment(suggestion: [ ! -f \"$HOME/.lbsh/.lbsh_profile\" ] || source $HOME/.lbsh/.lbsh_profile)"
+    fi
+}
+
+# 安装结束
+function install_finsh() {
+    echo
+    finsh_echo="Congratulations! Install Success!"
+    cecho green "${finsh_echo}"
+    # cecho green "Congratulations! Install Success! Please souce your environment before using...(# source /etc/profile or your sh...)"
+    if ((${#FINISH_TIPS[*]} > 0)); then
+        echo
+        finsh_echo="matters need attention:\n"
+        finsh_echo="${finsh_echo}=================================================================================\n"
+        for ((i = 0; i < ${#FINISH_TIPS[*]}; i++)); do
+            ((${i} == 0)) || finsh_echo="${finsh_echo}\n"
+            let index=i+1
+            finsh_echo="${finsh_echo}${index}. ${FINISH_TIPS[$i]}"
+        done
+        finsh_echo="${finsh_echo}\n================================================================================="
+        cecho yellow "${finsh_echo}"
     fi
 }
 
@@ -263,7 +314,9 @@ function main() {
         clear
         welcome
         env_check
-        pause
+
+        install_finsh
+        pause finish
     fi
 }
 
