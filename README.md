@@ -1,4 +1,4 @@
-<p 100%; align="center"><img style="width: 90%; padding-top:10px;" src="./lbsh_icon_sm.png" alt="Vue logo"></p>
+<p align="center"><img style="width: 90%; padding-top:20px;" src="./lbsh_icon_sm.png"></p>
 
 <!-- TODO下列文本替换成表格 -->
 ## 所有脚本
