@@ -2,8 +2,6 @@
 <br/>
 
 <p align="center"><img style="width: 90%; padding-top:20px;" src="./lbsh_icon_sm.png"></p>
-
-<br/>
 <p align="center">
   <a href="#"><img src="https://img.shields.io/github/search/luobozz/my_shell/goto"></a>
   <a href="#"><img src="https://img.shields.io/badge/Luobo-Shell-brightgreen"></a>
