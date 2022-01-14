@@ -10,7 +10,6 @@
 </p>
 
 <br/>
-<br/>
 
 ## 简介
 一些好用的脚本工具，使用 **[lbsh_installer](./lbsh_installer/lbsh_installer)** (以下称`安装器`)安装和更新，也可以脱离安装器单独安装。
