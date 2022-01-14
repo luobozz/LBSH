@@ -1,7 +1,0 @@
-#!/bin/bash
-vars=("Linux" "Gnu Hurd" "Free BSD" "Other")
-echo ${vars[*]}
-select var in ${vars[*]}; do
-  break;
-done
-echo $var
