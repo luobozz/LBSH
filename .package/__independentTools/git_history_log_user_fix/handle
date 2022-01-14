@@ -1,0 +1,86 @@
+#!/bin/bash
+# only for myself now
+TEMP_DIR_NAME="./tmp"
+FIXER_SCRIPT_NAME="fixer"
+
+function readForTimes(){
+    times=3
+    if [ "$1" != "" ]; then
+        if [ "$2" != "" ]; then
+            let times=$2
+        fi
+        while [ $times -gt 0 ]; do
+            read -p "$1" inputArg
+            case $inputArg in
+                [yY]*)
+                let times=0
+                ;;
+                [nN]*)
+                    exit
+                ;;
+                *)
+                    if [ $times -eq 1 ]; then
+                        msg "run out of retry, exit."
+                        exit
+                    else
+                        let times--
+                        msg "just enter y or n, please enter again, $times more times retry."
+                    fi
+                ;;
+            esac
+        done
+    fi
+}
+
+read -p "git repository:" repository
+
+if [ ${#repository} -le 0 ]; then
+    echo "repository not allowed." 
+    exit
+fi
+
+rm -rf $TEMP_DIR_NAME
+mkdir $TEMP_DIR_NAME
+
+git clone $repository $TEMP_DIR_NAME
+
+
+
+echo "git filter-branch --env-filter '
+NEW_NAME=\"luobozz\"
+NEW_EMAIL=\"437337961@qq.com\"
+
+if [ \"\$GIT_COMMITTER_EMAIL\" != \"\$NEW_EMAIL\" ]
+then
+    export GIT_COMMITTER_NAME=\"\$NEW_NAME\"
+    export GIT_COMMITTER_EMAIL=\"\$NEW_EMAIL\"
+fi
+if [ \"\$GIT_AUTHOR_EMAIL\" != \"\$NEW_EMAIL\" ]
+then
+    export GIT_AUTHOR_NAME=\"\$NEW_NAME\"
+    export GIT_AUTHOR_EMAIL=\"\$NEW_EMAIL\"
+fi
+' --tag-name-filter cat -- --branches --tags">> $TEMP_DIR_NAME/$FIXER_SCRIPT_NAME
+
+echo fix_script init success.
+
+chmod +x $TEMP_DIR_NAME/$FIXER_SCRIPT_NAME
+cd $TEMP_DIR_NAME
+sh ./$FIXER_SCRIPT_NAME
+
+echo "fix_script exec success."
+echo "choose what todo next and git repository will be distory when exit."
+select choose in "show log & push it" "push it" "exit only"; do
+  break;
+done
+echo "You have selected $choose"
+if [ "$choose" == "show log & push it" ]; then
+    echo `git log`;git push --force
+elif [ "$choose" == "push it" ]; then
+    git push --force
+else
+    echo 1
+fi
+
+cd ..
+rm -rf $TEMP_DIR_NAME

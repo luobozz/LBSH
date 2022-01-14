@@ -1,0 +1,23 @@
+#!/bin/bash
+name="jdk"
+version="1.8"
+# 根据需求切换bash或者zsh
+shPath="${HOME}/.zshrc"
+# shPath='~/.bashrc'
+
+# 1.8
+packageName='jdk1.8.0_202'
+wget https://mirrors.huaweicloud.com/java/jdk/8u202-b08/jdk-8u202-linux-x64.tar.gz  -O $name$version.tar
+
+mkdir -p /usr/local/java
+tar -xvf $name$version.tar -C /usr/local/java
+
+echo "export JAVA_HOME=/usr/local/java/$packageName" >> $shPath
+echo "export JRE_HOME=\${JAVA_HOME}/jre" >> $shPath
+echo "export CLASSPATH=.:\${JAVA_HOME}/lib:\${JRE_HOME}/lib" >> $shPath
+echo "export PATH=\${JAVA_HOME}/bin:\$PATH" >> $shPath
+
+cat $shPath
+# echo ${HOME}
+
+# TODO maven list
