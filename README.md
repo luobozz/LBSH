@@ -3,8 +3,10 @@
 
 <p align="center"><img style="width: 90%; padding-top:20px;" src="./lbsh_icon_sm.png"></p>
 <p align="center">
-  <a href="#"><img src="https://img.shields.io/github/search/luobozz/my_shell/goto"></a>
-  <a href="#"><img src="https://img.shields.io/badge/Luobo-Shell-brightgreen"></a>
+  <a href="#"><img src="https://img.shields.io/github/stars/luobozz/my_shell?style=for-the-badge"></a>
+  <a href="#"><img src="https://img.shields.io/github/search/luobozz/my_shell/goto?style=for-the-badge"></a>
+  <a href="#"><img src="https://img.shields.io/github/languages/count/luobozz/my_shell?style=for-the-badge"></a>
+  <a href="#"><img src="https://img.shields.io/badge/Luobo-Shell-brightgreen?style=for-the-badge"></a>
 </p>
 
 <br/>

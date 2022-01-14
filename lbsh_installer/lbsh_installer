@@ -15,6 +15,8 @@ function cecho() {
         echo -e "\033[33m$2\033[0m"
     elif [ "$1" == "green" ]; then
         echo -e "\033[32m$2\033[0m"
+    elif [ "$1" == "blue" ]; then
+        echo -e "\033[34m$2\033[0m"
     fi
 }
 
@@ -179,7 +181,7 @@ function env_cmd_check() {
 }
 # 检查本地已安装环境目录，不存在则提示创建
 function env_dir_check() {
-    dir_array=("${HOME}/.lbsh" "${HOME}/.lbsh/bin" "${HOME}/.lbsh/lib")
+    dir_array=("${HOME}/.lbsh" "${HOME}/.lbsh/bin" "${HOME}/.lbsh/cache" "${HOME}/.lbsh/log" "${HOME}/.lbsh/lbsh")
     if ((${#dir_array[*]} > 0)); then
         title "Installation Home Check:"
         for dir in ${dir_array[@]}; do
@@ -272,7 +274,18 @@ function lbsh_list() {
                 inputArg=${lbsh_array[index]}
                 [[ ${lbsh_array[@]/${inputArg}/} != ${lbsh_array[@]} ]] && {
                     let times=0
-                    echo "Yes ${inputArg}"
+                    echo
+                    cecho blue "${inputArg} to be installed"
+                    echo
+                    title npd "${inputArg} Install Check:"
+                    echo
+                    install_file="../lssh/${inputArg}/install"
+                    echo $pwd
+                    ls -l $install_file
+                    [ -d $install_file ] && load_success "${inputArg} Install file exist" || {
+                        load_error "${inputArg} Install file is not exist(${install_file}), please check then integrity of your lbsh repositories..."
+                        pause exit
+                    }
                 } || {
                     times_m=1
                 }
