@@ -1,4 +1,4 @@
-<h1 align="center"><img style="width: 90%; padding-top:20px;" src="./lbsh_icon_sm.png"></h1>
+<p align="center"><img style="width: 90%; padding-top:20px;" src="./lbsh_icon_sm.png"></p>
 
 ## 简介
 一些好用的脚本工具，使用 **[lbsh_installer](./lbsh_installer/lbsh_installer)** (以下称`安装器`)安装和更新，也可以脱离安装器单独安装。
