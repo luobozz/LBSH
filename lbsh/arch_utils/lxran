@@ -1,0 +1,15 @@
+#!/bin/bash
+# ssh启动todesk可以实现静默启动(没有主界面) 本脚本只管切换分辨率
+# pid=$(ps -ef | grep todesk | grep -v grep | awk '{print $2}')
+# [[ -n "${pid}" ]] && kill -9 ${pid}
+case "${1}" in
+    1)
+        xrandr --output eDP-1 --mode 1920x1080_60.00
+        ;;
+    2)
+        xrandr --output eDP-1 --mode 1366x768
+        ;;
+    *)
+    echo no support
+    ;;
+esac
