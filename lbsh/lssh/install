@@ -1,1 +1,4 @@
 #!/bin/bash
+mkdir -p $LBSH_HOME/lbsh/lssh
+cp -rf $install_home/libs $LBSH_HOME/lbsh/lssh/libs
+cp -rf $install_home/lssh $LBSH_HOME/lbsh/lssh/lssh

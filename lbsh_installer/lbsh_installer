@@ -1,5 +1,6 @@
 #!/bin/bash
 VERSION="3.0.0"
+export LBSH_HOME="$HOME/.lbsh"
 # 交互方式
 # 1 非交互式 passive
 # 2 交互式 interactive
@@ -279,10 +280,18 @@ function lbsh_list() {
                     echo
                     title npd "${inputArg} Install Check:"
                     echo
-                    install_file="../lssh/${inputArg}/install"
-                    echo $pwd
-                    ls -l $install_file
-                    [ -d $install_file ] && load_success "${inputArg} Install file exist" || {
+                    install_file="../lbsh/${inputArg}/install"
+                    [ -f $install_file ] && {
+                        export install_home="../lbsh/${inputArg}"
+                        ${install_file}
+                        # 判断更新安装脚本执行结果
+                        [ $? -eq 0 ] && {
+                            load_success "${inputArg} Install success"
+                        } || {
+                            load_error "${inputArg} Install fail"
+                            pause exit
+                        }
+                    } || {
                         load_error "${inputArg} Install file is not exist(${install_file}), please check then integrity of your lbsh repositories..."
                         pause exit
                     }

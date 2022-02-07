@@ -2,14 +2,13 @@
 # ssh增强 用于保存会话快速登录
 # 依赖列表
 SCRIPT_VERSION="1.0.5"
-SCRIPT_NAME="lb-ssh"
+SCRIPT_NAME="lssh"
 LBSH_HOME="$HOME/.lbsh"
-LBSH_CONFIG_HOME="$LBSH_HOME/config"
-LBSH_LIB_HOME="$LBSH_HOME/lib"
 
-LSSH_CONFIG_HOME="$LBSH_CONFIG_HOME/lssh"
+LSSH_LIB_HOME="$LBSH_HOME/lbsh/lssh/libs"
+LSSH_CONFIG_HOME="$LBSH_HOME/lbsh/lssh/config"
 LSSH_CONFIG_REMOTE_LIST="remote_list.config"
-LSSH_CONFIG_REMOTE_SCRIPT="lssh/remote.py"
+LSSH_CONFIG_REMOTE_SCRIPT="remote.py"
 
 REMOTE_CALLBACK_SPLIT_FLAG="(//s)"
 
@@ -38,12 +37,12 @@ function getUuid(){
 }
 
 function remote(){
-    hdMsg=`python $LBSH_LIB_HOME/$LSSH_CONFIG_REMOTE_SCRIPT -p "$*" -cp $LSSH_CONFIG_HOME/$LSSH_CONFIG_REMOTE_LIST -cbsp $REMOTE_CALLBACK_SPLIT_FLAG`
+    hdMsg=`python $LSSH_LIB_HOME/$LSSH_CONFIG_REMOTE_SCRIPT -p "$*" -cp $LSSH_CONFIG_HOME/$LSSH_CONFIG_REMOTE_LIST -cbsp $REMOTE_CALLBACK_SPLIT_FLAG`
     msg $hdMsg
 }
 
 function remote_cb(){
-    hdMsg=`python $LBSH_LIB_HOME/$LSSH_CONFIG_REMOTE_SCRIPT -p "$*" -cp $LSSH_CONFIG_HOME/$LSSH_CONFIG_REMOTE_LIST -cbsp $REMOTE_CALLBACK_SPLIT_FLAG`
+    hdMsg=`python $LSSH_LIB_HOME/$LSSH_CONFIG_REMOTE_SCRIPT -p "$*" -cp $LSSH_CONFIG_HOME/$LSSH_CONFIG_REMOTE_LIST -cbsp $REMOTE_CALLBACK_SPLIT_FLAG`
     array=(${hdMsg})
     if [ "${array[0]}" == "success" ]; then
         cmd=${array[1]//$REMOTE_CALLBACK_SPLIT_FLAG/ }
