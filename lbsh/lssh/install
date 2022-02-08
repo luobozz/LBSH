@@ -1,4 +1,13 @@
 #!/bin/bash
 mkdir -p $LBSH_HOME/lbsh/lssh
+[ -f "$LBSH_HOME/lbsh/lssh/config/remote_list.config" ] || {
+    [ -d "/path/to/directory" ] || {
+        mkdir -p $LBSH_HOME/lbsh/lssh/config
+    }
+    touch $LBSH_HOME/lbsh/lssh/config/remote_list.config
+}
+
 cp -rf $install_home/libs $LBSH_HOME/lbsh/lssh/libs
 cp -rf $install_home/lssh $LBSH_HOME/lbsh/lssh/lssh
+rm -rf $LBSH_HOME/bin/lssh
+ln -s $LBSH_HOME/lbsh/lssh/lssh $LBSH_HOME/bin/lssh

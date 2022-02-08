@@ -5,4 +5,5 @@ if [[ "$1" == "-v" ]]; then
     echo $VERSION
 else
     export LBSH_HOME="$HOME/.lbsh"
+    export PATH="$HOME/.lbsh/bin/:$PATH"
 fi
