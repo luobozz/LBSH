@@ -1,7 +1,7 @@
 #!/bin/bash
 mkdir -p $LBSH_HOME/lbsh/lssh
 [ -f "$LBSH_HOME/lbsh/lssh/config/remote_list.config" ] || {
-    [ -d "/path/to/directory" ] || {
+    [ -d "$LBSH_HOME/lbsh/lssh/config" ] || {
         mkdir -p $LBSH_HOME/lbsh/lssh/config
     }
     touch $LBSH_HOME/lbsh/lssh/config/remote_list.config
