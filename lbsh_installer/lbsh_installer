@@ -201,7 +201,7 @@ function env_dir_check() {
 # 暂行 安装的所有脚本必须版本跟安装脚本同步
 # TODO 后续更新更新检查方案来分别指定最高版本
 function env_script_check() {
-    script_array=("/home/luobo/.lbsh/.lbsh_profile")
+    script_array=("$HOME/.lbsh/.lbsh_profile")
     script_upgrade_array=(
         "cp -f ./libs/lbsh_profile ${script_array[0]}"
     )
