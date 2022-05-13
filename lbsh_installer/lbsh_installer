@@ -158,7 +158,7 @@ function env_check() {
 }
 # 检查所需系统命令环境，不存在则退出
 function env_cmd_check() {
-    cmd_array=("node")
+    cmd_array=("python node")
     if ((${#cmd_array[*]} > 0)); then
         title "Installation Commands Environment Check:"
         error_env=""
