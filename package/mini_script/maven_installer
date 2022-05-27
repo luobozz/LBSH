@@ -1,0 +1,19 @@
+#!/bin/bash
+name="maven"
+version="3.6.3"
+# 根据需求切换bash或者zsh
+shPath="${HOME}/.zshrc"
+sPath="/usr/local/maven"
+# shPath='~/.bashrc'
+
+# 1.8
+packageName='apache-maven-3.6.3'
+wget https://repo.huaweicloud.com/apache/maven/maven-3/3.6.3/binaries/apache-maven-3.6.3-bin.tar.gz  -O $name$version.tar
+
+mkdir -p ${sPath}
+tar -xvf $name$version.tar -C ${sPath}
+
+echo "export MAVEN_HOME=${sPath}/$packageName" >> $shPath
+echo "export PATH=\${MAVEN_HOME}/bin:\$PATH" >> $shPath
+
+cat $shPath |grep MAVEN_HOME
