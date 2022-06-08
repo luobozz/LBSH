@@ -1,0 +1,33 @@
+!#/bin/bash
+function check_passive_mode() {
+    if [ "$1" == "-h" ]; then
+        welcome
+        echo
+        echo "Usage: $0 [options] [command] to passive mode or "
+        echo "       $0 to interactive mode"
+        echo
+        echo "Commands: "
+        echo "       ps,ls,list       Check luobo tools list"
+        echo "       i,install        Install luobo tools in your system"
+        echo "       u,unstall        Unstall luobo tools"
+        echo "       clear            Clear lbsh home"
+        echo
+        echo "Options: "
+        echo "       -h,-help         Output usage information"
+        echo "       -v               Verbose mode"
+        echo
+    elif [ "$1" == "ps" ] || [ "$1" == "ls" ] || [ "$1" == "list" ]; then
+        echo ls
+        return 0
+    elif [ "$1" == "i" ] || [ "$1" == "install" ]; then
+        welcome
+        env_check
+        echo "install $2"
+        return 0
+    elif [ "$1" == "-v" ]; then
+        echo "${VERSION}"
+        return 0
+    else
+        return 1
+    fi
+}
