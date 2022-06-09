@@ -1,33 +1,83 @@
-!#/bin/bash
-function check_passive_mode() {
-    if [ "$1" == "-h" ]; then
-        welcome
-        echo
-        echo "Usage: $0 [options] [command] to passive mode or "
-        echo "       $0 to interactive mode"
-        echo
-        echo "Commands: "
-        echo "       ps,ls,list       Check luobo tools list"
-        echo "       i,install        Install luobo tools in your system"
-        echo "       u,unstall        Unstall luobo tools"
-        echo "       clear            Clear lbsh home"
-        echo
-        echo "Options: "
-        echo "       -h,-help         Output usage information"
-        echo "       -v               Verbose mode"
-        echo
-    elif [ "$1" == "ps" ] || [ "$1" == "ls" ] || [ "$1" == "list" ]; then
-        echo ls
-        return 0
-    elif [ "$1" == "i" ] || [ "$1" == "install" ]; then
-        welcome
-        env_check
-        echo "install $2"
-        return 0
-    elif [ "$1" == "-v" ]; then
-        echo "${VERSION}"
-        return 0
-    else
-        return 1
+#!/bin/bash
+VERSION=v1.0.1
+CLEAN_DIR=()
+CLEAN_MODEL=""
+THRESHOLD=80
+CLEAN_FILES=()
+
+function usage() {
+    echo "Usage: 空间清理器 ${VERSION}"
+    echo "       sweeper [options]"
+    echo
+    echo "Options: "
+    echo "       -h               usage"
+    echo "       -d               清理的文件(支持多个检索，多个之间用分号;隔开,一个也要加分号"
+    echo "       -m               清理触发的模式(仅支持所有检索统一模式，不支持多个检索独立模式
+                                    - exist(符合检索条件的文件存在即清理
+                                    - threshold(系统剩余空间阈值触发"
+    echo "       -s               清理阈值(threshold模式下的触发阈值默认80 不能小于0"
+    echo "       -v               检查版本"
+    exit 1
+}
+
+function optionsValidition(){
+    if [[ -z "${CLEAN_MODEL}" ]]; then
+        echo "必须选择一个模式 (-tm exist/threshold)"
+        exit 1
+    fi
+    
+    
+    if ((${#CLEAN_DIR[*]} == 0)); then
+        echo "没有设定需要检测的文件"
+        exit 1
     fi
 }
+
+function existModel(){
+    for dir in ${CLEAN_DIR[@]}; do
+        echo $dir
+    done
+}
+
+function clear(){
+    for dir in ${CLEAN_DIR[@]}; do
+        if [ -f $dir ]; then
+            rm -rf $dir
+            CLEAN_FILES[${#CLEAN_FILES[*]}]="$dir"
+            # echo "已清理${dir}"
+        fi
+    done
+    echo "[$(date +"%Y年%-m月%-d日 %R:%S")] 已清理${#CLEAN_FILES[*]}个文件(${CLEAN_FILES[*]})"
+}
+
+function thresholdModel(){
+    # for dir in ${CLEAN_DIR[@]}; do
+    #     echo $dir
+    # done
+    echo thresholdModel
+}
+
+function main(){
+    while getopts hvd:m:s: option
+    do
+        case "${option}" in
+            h) usage;;
+            v) echo $VERSION
+            exit 1;;
+            d) CLEAN_DIR=(${OPTARG//;/ });;
+            m) CLEAN_MODEL=${OPTARG};;
+            s) THRESHOLD=${OPTARG};;
+            [?]) echo "无效或不存在的选项" ;;
+        esac
+    done
+    
+    optionsValidition
+    
+    case $CLEAN_MODEL in
+        exist) clear;;
+        threshold) thresholdModel;;
+        *) echo "选择一个正确的模式 (exist/threshold)";;
+    esac
+}
+
+main $*
